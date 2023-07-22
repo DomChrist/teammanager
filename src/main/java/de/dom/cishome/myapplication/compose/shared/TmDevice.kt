@@ -10,7 +10,7 @@ import androidx.core.content.FileProvider
 import java.io.File
 import java.util.Objects
 
-fun openCamera( id: String, path: String, context: Context) {
+fun shotPlayerImage( id: String, context: Context) {
     val values = ContentValues()
 
     values.put(MediaStore.Images.Media.TITLE, "New Picture")

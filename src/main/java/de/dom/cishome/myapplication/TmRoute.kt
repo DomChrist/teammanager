@@ -1,5 +1,7 @@
 package de.dom.cishome.myapplication
 
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -13,11 +15,14 @@ import de.dom.cishome.myapplication.compose.player.pages.PlayerContactPersonPage
 import de.dom.cishome.myapplication.compose.player.pages.PlayerDetailPage
 import de.dom.cishome.myapplication.compose.player.pages.PlayerInfoPage
 import de.dom.cishome.myapplication.compose.player.pages.PlayerWelcomePage
+import de.dom.cishome.myapplication.compose.player.pages.TrialPlayerDetailPage
 import de.dom.cishome.myapplication.compose.player.service.PlayerService
 
 
 @ExperimentalUnitApi
 @ExperimentalPermissionsApi
+@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 fun NavGraphBuilder.playerGraph( navController: NavController, playerService: PlayerService ){
     navigation( startDestination = "start" , route = "player"){
         composable("start"){
@@ -35,5 +40,10 @@ fun NavGraphBuilder.playerGraph( navController: NavController, playerService: Pl
         composable("player/detail/{id}/contacts" , arguments = listOf( navArgument("id"){type= NavType.StringType} )){
             PlayerContactPersonPage( navController )
         }
+
+        composable("player/trial/detail/{id}" ){
+            TrialPlayerDetailPage(navBackStackEntry = it, playerService=playerService , navController = navController)
+        }
+
     }
 }

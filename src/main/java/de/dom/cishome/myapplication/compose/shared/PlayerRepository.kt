@@ -6,12 +6,24 @@ import android.util.Log
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
+import com.google.gson.JsonPrimitive
+import com.google.gson.JsonSerializationContext
+import com.google.gson.JsonSerializer
 import de.dom.cishome.myapplication.compose.player.service.Player
 import java.io.File
 import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.FileWriter
-import java.io.FilenameFilter
+import java.lang.reflect.Type
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+
 
 interface PlayerRepository{
 
@@ -50,35 +62,37 @@ class FileRep( var c: Context, var p: PermissionState ) : PlayerRepository{
         val file = File( Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players" )
 
 
-        val list = file.listFiles().filter { it.isDirectory }
-            .map {
+        val list = file.listFiles()?.filter { it.isDirectory }
+            ?.map {
                 val data = File( file , "/${it.name}/data.player")
                 val fileReader = FileReader(data);
-                    var player : Player = Gson().fromJson( fileReader.readText() , Player::class.java );
+                    var txt = fileReader.readText();
+                    var player : Player = GsonUtils.mapper().fromJson( txt , Player::class.java );
                 fileReader.close()
                 player;
-            }
-
-        if( list == null || list.isEmpty() ) return listOf();
+            } ?: listOf()
 
         return list;
     }
 
     override fun write(p: Player) {
 
-        val toJson = Gson().toJson(p);
+        val toJson = GsonUtils.Json.mapper().toJson( p );
 
-        val file = File(Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${p.id}"); ///${p.id}.json")
-            file.mkdirs();
+        val file = File(Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${p.id}")
+
+        file.mkdirs();
 
         val playerFile = File( file , "data.player")
         var writer = FileWriter( playerFile );
-            writer.write(toJson)
+
+        writer.write(toJson)
+
         writer.flush()
         writer.close()
-
-
     }
 
 
+
 }
+

@@ -10,6 +10,7 @@ import java.util.UUID
 class PlayerService( val rep: PlayerRepository? ) {
 
     private var data: List<Player> = listOf();
+    var selected: Player? = null;
 
     fun player(): List<Player>{
         if( this.data.isEmpty() ){
@@ -25,11 +26,26 @@ class PlayerService( val rep: PlayerRepository? ) {
         this.data = this.data.plus( p );
     }
 
+    fun select( p: Player ){
+        this.selected = p;
+    }
+
+    fun startMembership(p: Player) {
+        this.data.filter { p.id == it.id }.forEach{
+            it.trial = false
+            this.rep!!.write( p );
+        }
+    }
+
+    fun updateTrialCount( count: Int , p: Player){
+
+    }
+
 }
 
 
 data class Player( val id: String = UUID.randomUUID().toString(), val givenName: String, val familyName: String, val dateOfBirth: LocalDate,
-val trial: Boolean = false): Serializable{
+var trial: Boolean = false): Serializable{
     fun fullName(): String {
         return this.givenName + " " + this.familyName;
     }

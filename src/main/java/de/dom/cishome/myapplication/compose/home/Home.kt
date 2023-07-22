@@ -1,5 +1,7 @@
 package de.dom.cishome.myapplication.compose.home
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -83,7 +86,7 @@ private fun content( d: MenuData, nav: NavController ){
     var tm = TmComponents();
     Scaffold (
         topBar = { tm.header() },
-        bottomBar = {TmBottomBar()}
+        bottomBar = {TmBottomBar(nav)}
     ){
         Box(modifier = Modifier.padding(it)){
             NavigationBoxes(d,nav)
@@ -92,14 +95,17 @@ private fun content( d: MenuData, nav: NavController ){
 }
 
 @Composable
-fun TmBottomBar(){
+fun TmBottomBar( nav: NavController ){
 
-
+    var ctx = LocalContext.current;
 
     NavigationBar() {
 
         NavigationBarItem(selected = false,
-            onClick = { /*TODO*/ },
+            onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://tus-kettig1959.de/tuskettig/"),)
+                ctx.startActivity( intent)
+            },
             icon = { Icon(Icons.Filled.Menu, contentDescription = "Localized description") },
             label = { Text("HOME") }
         )

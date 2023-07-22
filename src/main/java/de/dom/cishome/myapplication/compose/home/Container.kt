@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -48,6 +49,24 @@ class TmComponents{
                 // RowScope here, so these icons will be placed horizontally
                 IconButton(onClick = { nav.navigateUp() }) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = "Localized description")
+                }
+            }
+        )
+    }
+
+    @Composable
+    fun header(nav: NavController, action: () -> Unit){
+        TopAppBar(
+            modifier = Modifier.background(Color.Cyan),
+            title = { Text("Team Manager") },
+            navigationIcon = {
+                IconButton(onClick = { nav.navigateUp() }) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = "Localized description")
+                }
+            },
+            actions = {
+                IconButton(onClick = { action }) {
+                    Icon(Icons.Filled.Send, contentDescription = null)
                 }
             }
         )

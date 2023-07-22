@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
@@ -19,23 +20,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.navigation.NavController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import de.dom.cishome.myapplication.compose.home.home
 import de.dom.cishome.myapplication.compose.membership.page.MembershipWelcomePage
-import de.dom.cishome.myapplication.compose.player.pages.NewPlayerPage
-import de.dom.cishome.myapplication.compose.player.pages.PlayerDetailPage
-import de.dom.cishome.myapplication.compose.player.pages.PlayerInfoPage
-import de.dom.cishome.myapplication.compose.player.pages.PlayerWelcomePage
 import de.dom.cishome.myapplication.compose.player.service.PlayerService
 import de.dom.cishome.myapplication.compose.playground.pages.PlayGroundPage
 import de.dom.cishome.myapplication.compose.shared.FileRep
-import de.dom.cishome.myapplication.compose.tunier.page.TurnierWelcomePage
+import de.dom.cishome.myapplication.compose.turnier.page.TurnierWelcomePage
 
 @ExperimentalUnitApi
 @ExperimentalPermissionsApi
@@ -59,10 +54,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @ExperimentalUnitApi
 @ExperimentalPermissionsApi
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 fun App(){
 
     var state = rememberPermissionState(

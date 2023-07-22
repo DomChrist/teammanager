@@ -13,4 +13,14 @@ open class PlayerFileHelper {
         return tm;
     }
 
+    fun playerDir( id: String): File{
+        val dir = File( Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${id}" )
+        return dir;
+    }
+
+    fun playerFile( id: String , file: String): File {
+        val dir = playerDir(id)
+        return File( dir , file);
+    }
+
 }

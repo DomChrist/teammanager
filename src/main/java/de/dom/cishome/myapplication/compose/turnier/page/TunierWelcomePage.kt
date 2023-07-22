@@ -1,4 +1,4 @@
-package de.dom.cishome.myapplication.compose.tunier.page
+package de.dom.cishome.myapplication.compose.turnier.page
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding

@@ -60,8 +60,7 @@ fun player(playerService: PlayerService, nc: NavController) {
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = { FloatingActionButton(onClick = { nc.navigate("player/add") }){
             Text("+")
-        } },
-        bottomBar = { BottomAppBar( modifier = Modifier.background(materialBlue700) ) { Text("BottomAppBar") } }
+        } }
     ){contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) { content(playerService,nc) }
     }
@@ -77,6 +76,7 @@ fun content( playerService: PlayerService, nc: NavController ){
 
     val tabs = listOf("SPIELER", "SCHNUPPERER")
 
+
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = tabIndex.value) {
             tabs.forEachIndexed { index, title ->
@@ -90,14 +90,14 @@ fun content( playerService: PlayerService, nc: NavController ){
             0 -> {
                 LazyColumn(modifier = Modifier.padding(PaddingValues(5.dp , 45.dp))){
                     items( playerService.player().filter { !it.trial } ){
-                        PlayerItemView( it , nc )
+                        PlayerItemView( it , playerService , nc )
                     }
                 }
             }
             1 -> {
                 LazyColumn(modifier = Modifier.padding(PaddingValues(5.dp , 45.dp))){
                     items( playerService.player().filter { it.trial } ){
-                        PlayerItemView( it , nc )
+                        TrialItemView( it , playerService , nc )
                     }
                 }
             }
@@ -109,7 +109,38 @@ fun content( playerService: PlayerService, nc: NavController ){
 }
 
 @Composable
-fun PlayerItemView( p: Player , nc: NavController ){
+fun PlayerItemView( p: Player, playerService: PlayerService , nc: NavController ){
+
+    var m: MutableState<Player> = remember{ mutableStateOf( p ) };
+    val onClick = {
+        playerService.select( p );
+        nc.saveState()!!.putString("playerId" , p.id)
+        nc.currentBackStackEntry
+            ?.savedStateHandle
+            ?.set("player" , m);
+        nc.navigate("player/detail/" + p.id )
+    }
+
+
+    Card( onClick=onClick,  modifier = Modifier
+        .padding(PaddingValues(15.dp, 5.dp, 15.dp, 5.dp))
+        .fillMaxWidth() ) {
+        Box(modifier = Modifier.padding(PaddingValues(15.dp))){
+            Column() {
+                Icon(
+                    Icons.Rounded.Person,
+                    contentDescription = stringResource(id = androidx.compose.ui.R.string.in_progress)
+                )
+            }
+            Column(Modifier.padding(30.dp , 0.dp, 0.dp, 0.dp)) {
+                Text(  p.givenName.plus(" ").plus(p.familyName), fontWeight = FontWeight.Bold )
+            }
+        }
+    }
+}
+
+@Composable
+fun TrialItemView( p: Player , playerService: PlayerService , nc: NavController ){
 
     var m: MutableState<Player> = remember{ mutableStateOf( p ) };
     val onClick = {
@@ -117,7 +148,8 @@ fun PlayerItemView( p: Player , nc: NavController ){
         nc.currentBackStackEntry
             ?.savedStateHandle
             ?.set("player" , m);
-        nc.navigate("player/detail/" + p.id )
+        playerService.select( p );
+        nc.navigate("player/trial/detail/" + p.id )
     }
 
 
