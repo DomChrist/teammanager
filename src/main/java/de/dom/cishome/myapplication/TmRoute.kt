@@ -17,6 +17,8 @@ import de.dom.cishome.myapplication.compose.player.pages.PlayerInfoPage
 import de.dom.cishome.myapplication.compose.player.pages.PlayerWelcomePage
 import de.dom.cishome.myapplication.compose.player.pages.TrialPlayerDetailPage
 import de.dom.cishome.myapplication.compose.player.service.PlayerService
+import de.dom.cishome.myapplication.compose.turnier.page.CompetitionDetailPage
+import de.dom.cishome.myapplication.compose.turnier.page.TurnierWelcomePage
 
 
 @ExperimentalUnitApi
@@ -44,6 +46,23 @@ fun NavGraphBuilder.playerGraph( navController: NavController, playerService: Pl
         composable("player/trial/detail/{id}" ){
             TrialPlayerDetailPage(navBackStackEntry = it, playerService=playerService , navController = navController)
         }
+
+    }
+}
+
+@ExperimentalUnitApi
+@ExperimentalPermissionsApi
+@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
+fun NavGraphBuilder.competitionGraph( navController: NavController, playerService: PlayerService ){
+    navigation( startDestination = "start" , route = "competition"){
+        composable("start"){
+            TurnierWelcomePage( navController )
+        }
+        composable("competition/detail/{id}"){
+            CompetitionDetailPage( navController )
+        }
+
 
     }
 }

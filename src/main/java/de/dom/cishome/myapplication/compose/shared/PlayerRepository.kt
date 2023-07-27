@@ -3,8 +3,10 @@ package de.dom.cishome.myapplication.compose.shared
 import android.content.Context
 import android.os.Environment
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.isGranted
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
@@ -13,11 +15,15 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
+import de.dom.cishome.myapplication.compose.home.header
 import de.dom.cishome.myapplication.compose.player.service.Player
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
+import java.io.FilePermission
 import java.io.FileReader
 import java.io.FileWriter
+import java.lang.Exception
 import java.lang.reflect.Type
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -35,6 +41,8 @@ interface PlayerRepository{
 
 @ExperimentalPermissionsApi
 class FileRep( var c: Context, var p: PermissionState ) : PlayerRepository{
+
+    val root = "/data/user/0/de.dom.cishome.myapplication/files/tm"
 
     @ExperimentalPermissionsApi
     private fun fileFun(){
@@ -57,41 +65,55 @@ class FileRep( var c: Context, var p: PermissionState ) : PlayerRepository{
     }
 
     override fun players(): List<Player> {
-        p.launchPermissionRequest();
+        var pfh = PlayerFileHelper();
+        val file = pfh.playersDir()!!;
 
-        val file = File( Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players" )
+        file.listFiles()?.filter {
+            it.exists() && it.isDirectory
+        }
 
-
-        val list = file.listFiles()?.filter { it.isDirectory }
+        val list = file.listFiles()?.filter { it.exists() && it.isDirectory }
             ?.map {
-                val data = File( file , "/${it.name}/data.player")
-                val fileReader = FileReader(data);
+                var player: Player? = null;
+                try{
+                    val playerfile = pfh.playerFile(it.name);
+                    val fileReader = FileReader(playerfile);
                     var txt = fileReader.readText();
-                    var player : Player = GsonUtils.mapper().fromJson( txt , Player::class.java );
-                fileReader.close()
+                    player = GsonUtils.mapper().fromJson( txt , Player::class.java );
+                    fileReader.close()
+                }catch ( e: Exception){
+                    if( e is FileNotFoundException ){
+                        Log.e("FileNotFound" , "File for player ${player?.id ?: "(noId)"} not found")
+                    } else {
+                        e.printStackTrace()
+                    }
+                }
                 player;
-            } ?: listOf()
+            }?.filterNotNull() ?: listOf()
 
         return list;
     }
 
     override fun write(p: Player) {
+        try {
+            val helper = PlayerFileHelper();
+            val toJson = GsonUtils.Json.mapper().toJson( p );
 
-        val toJson = GsonUtils.Json.mapper().toJson( p );
+            var key = this.key( p );
+            var file = helper.playerFile( key )
 
-        val file = File(Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${p.id}")
+            helper.write( file , toJson )
+        }catch (e: Exception){
 
-        file.mkdirs();
+        }
 
-        val playerFile = File( file , "data.player")
-        var writer = FileWriter( playerFile );
-
-        writer.write(toJson)
-
-        writer.flush()
-        writer.close()
     }
 
+
+    private fun key( p: Player): String {
+        var key = p.familyName.lowercase().replace(" " , "").plus( "_" ).plus(p.givenName.lowercase())
+        return key;
+    }
 
 
 }

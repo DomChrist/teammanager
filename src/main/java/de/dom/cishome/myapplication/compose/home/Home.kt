@@ -1,7 +1,9 @@
 package de.dom.cishome.myapplication.compose.home
 
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +34,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -46,17 +49,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.permissions.rememberPermissionState
 import de.dom.cishome.myapplication.R
+import de.dom.cishome.myapplication.compose.shared.TmColors
 
 
-
-
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun home( nav: NavController ){
 
     var d = MenuData();
 
     content(d = d, nav = nav)
+
+    var permission = rememberMultiplePermissionsState(permissions = listOf<String>(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.VIBRATE,
+        Manifest.permission.CAMERA
+    ))
+    SideEffect {
+        if( permission.allPermissionsGranted ){
+        } else {
+            permission.permissions.forEach {
+                Log.i("Permission" , "${it.permission} -> ${it.status.isGranted}")
+            }
+            permission.launchMultiplePermissionRequest()
+        }
+    }
 
 }
 
@@ -99,33 +122,39 @@ fun TmBottomBar( nav: NavController ){
 
     var ctx = LocalContext.current;
 
-    NavigationBar() {
+    NavigationBar( contentColor = TmColors.primaryColor , containerColor = TmColors.primaryColor ) {
 
         NavigationBarItem(selected = false,
             onClick = {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://tus-kettig1959.de/tuskettig/"),)
                 ctx.startActivity( intent)
             },
-            icon = { Icon(Icons.Filled.Menu, contentDescription = "Localized description") },
-            label = { Text("HOME") }
+            icon = { Icon(imageVector = Icons.Filled.Menu, tint = TmColors.secondaryColor, contentDescription = "Localized description") },
+            label = { Text(text="HOME" , color = TmColors.secondaryColor) }
         )
         NavigationBarItem(selected = false,
             onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Filled.Person, contentDescription = "Localized description") },
-            label = { Text("PROFILE") }
+            icon = { Icon(Icons.Filled.Person, tint = TmColors.secondaryColor, contentDescription = "Localized description") },
+            label = { Text("PROFILE" , color = TmColors.secondaryColor) }
         )
         NavigationBarItem(selected = false,
             onClick = { /*TODO*/ },
-            icon = { Icon(Icons.Filled.Settings, contentDescription = "Localized description") },
-            label = { Text("SETTINGS") }
+            icon = { Icon(Icons.Filled.Settings, tint=TmColors.secondaryColor, contentDescription = "Localized description") },
+            label = { Text("SETTINGS" , color=TmColors.secondaryColor) }
         )
 
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun menuCard( i: HomeScreenMenuItem, nav: NavController){
-    ElevatedCard( onClick = {nav.navigate(i.dest)} ) {
+
+    var navigate: ()->Unit = {
+        nav.navigate(i.dest )
+    }
+
+    ElevatedCard( onClick = {navigate()} )  {
             Image(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -143,12 +172,13 @@ fun menuCard( i: HomeScreenMenuItem, nav: NavController){
     }
 }
 
+
 class MenuData {
 
     var list = listOf<HomeScreenMenuItem>(
         HomeScreenMenuItem("Verein" , "club", R.drawable.clublogo),
         HomeScreenMenuItem("Player" , "player", R.drawable.club),
-        HomeScreenMenuItem("Turnier" , "turnier", R.drawable.tuniert),
+        HomeScreenMenuItem("Turnier" , "competition", R.drawable.tuniert),
         HomeScreenMenuItem("Mitglieder" , "membership", R.drawable.member),
         HomeScreenMenuItem("Platz" , "platz", R.drawable.platz),
     )

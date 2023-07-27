@@ -32,6 +32,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -60,7 +61,6 @@ fun NewPlayerPage( playerService: PlayerService, nav: NavController){
         remember { mutableStateOf(TextFieldValue()) },
         remember { mutableStateOf(false) }
     )
-
 
     Scaffold(
         topBar = {AddPlayerTopBar(service = playerService, cmd = cmd, nav = nav )}
@@ -149,7 +149,7 @@ private fun Body( playerService: PlayerService, nav: NavController, cmd: NewPlay
                     Button( modifier = Modifier
                         .fillMaxWidth()
                         .padding(5.dp), onClick = { go(playerService , cmd , nav ) }) {
-                        Text(text = "NEXT")
+                        Text(text = "SAVE")
                     }
                 }
             }

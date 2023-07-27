@@ -46,6 +46,7 @@ import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.home.TmComponents
 import de.dom.cishome.myapplication.compose.player.pages.PlayerNavItem
 import de.dom.cishome.myapplication.compose.player.service.Player
+import de.dom.cishome.myapplication.compose.shared.PlayerFileHelper
 import de.dom.cishome.myapplication.compose.shared.shotPlayerImage
 import java.io.File
 import java.time.LocalDate
@@ -148,7 +149,7 @@ fun PlayerImage( p: Player? ){
 
     var file: File? = null;
     val playerImage: Boolean = if( p != null ){
-        file = File( Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${id}/main.jpg" )
+        file = File(PlayerFileHelper().playerDir(id),"main.jpg"); File( Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${id}/main.jpg" )
         file != null && file.exists()
     } else {
         false;

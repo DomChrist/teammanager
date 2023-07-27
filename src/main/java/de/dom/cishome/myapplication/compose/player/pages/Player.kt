@@ -1,5 +1,6 @@
 package de.dom.cishome.myapplication.compose.player.pages
 
+import android.Manifest
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -40,10 +43,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import de.dom.cishome.myapplication.compose.home.TmComponents
 import de.dom.cishome.myapplication.compose.player.service.Player
+import de.dom.cishome.myapplication.compose.shared.PlayerRepository
+import de.dom.cishome.myapplication.compose.shared.TmColors
 
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PlayerWelcomePage( playerService: PlayerService, nc: NavController ){
     player(playerService = playerService, nc = nc)
@@ -51,15 +60,13 @@ fun PlayerWelcomePage( playerService: PlayerService, nc: NavController ){
 
 @Composable
 fun player(playerService: PlayerService, nc: NavController) {
-    val materialBlue700= Color(0xFF1976D2)
-
     val tm = TmComponents();
 
     Scaffold(
         topBar = { tm.stage1Header(title = "Spielerübersicht", nav = nc)  },
         floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = { FloatingActionButton(onClick = { nc.navigate("player/add") }){
-            Text("+")
+        floatingActionButton = { FloatingActionButton(onClick = { nc.navigate("player/add")} , containerColor = TmColors.App.primary){
+            Text("+", color=TmColors.App.primaryText)
         } }
     ){contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) { content(playerService,nc) }
@@ -110,7 +117,7 @@ fun content( playerService: PlayerService, nc: NavController ){
 
 @Composable
 fun PlayerItemView( p: Player, playerService: PlayerService , nc: NavController ){
-
+    var c = TmColors.App;
     var m: MutableState<Player> = remember{ mutableStateOf( p ) };
     val onClick = {
         playerService.select( p );
@@ -121,10 +128,12 @@ fun PlayerItemView( p: Player, playerService: PlayerService , nc: NavController 
         nc.navigate("player/detail/" + p.id )
     }
 
+    var colors = CardDefaults.cardColors(containerColor = c.primary , contentColor = c.secondary)
 
-    Card( onClick=onClick,  modifier = Modifier
-        .padding(PaddingValues(15.dp, 5.dp, 15.dp, 5.dp))
-        .fillMaxWidth() ) {
+    Card( onClick=onClick,
+        modifier = Modifier
+            .padding(PaddingValues(15.dp, 5.dp, 15.dp, 5.dp))
+            .fillMaxWidth() ) {
         Box(modifier = Modifier.padding(PaddingValues(15.dp))){
             Column() {
                 Icon(
@@ -173,7 +182,22 @@ fun TrialItemView( p: Player , playerService: PlayerService , nc: NavController 
 @Composable
 @Preview
 fun PlayerWelcomePagePreview(){
-    var s = PlayerService(null);
+
+    class MyRepo : PlayerRepository{
+        override fun players(): List<Player> {
+            return listOf<Player>(
+                Player("1234" , "t1" , "t2" , LocalDate.now() , false),
+                Player("1234" , "t1" , "t2" , LocalDate.now() , true),
+                Player("1234" , "t1" , "t2" , LocalDate.now() , false),
+            )
+        }
+
+        override fun write(p: Player) {
+        }
+
+    }
+
+    var s = PlayerService(MyRepo());
     var nc = rememberNavController();
     player(playerService = s, nc = nc)
 }

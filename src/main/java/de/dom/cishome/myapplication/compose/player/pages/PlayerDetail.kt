@@ -46,6 +46,8 @@ import de.dom.cishome.myapplication.compose.player.component.PlayerImage
 import de.dom.cishome.myapplication.compose.player.service.Player
 import de.dom.cishome.myapplication.compose.player.service.PlayerService
 import de.dom.cishome.myapplication.compose.shared.PlayerHelper
+import de.dom.cishome.myapplication.compose.shared.TmDevice
+import de.dom.cishome.myapplication.compose.shared.share
 import java.time.LocalDate
 import java.util.UUID
 
@@ -110,29 +112,34 @@ fun header( nav: NavController ) {
             shape = CircleShape
         )
     Row(){
-        IconButton(
-            onClick = { nav.navigateUp() },
-            modifier = Modifier
-                .padding(start = Dimens.ToolbarIconPadding)
-                .background(brush = brush)
-                .then(iconModifier)
-        ) {
-            Icon(
-                Icons.Filled.ArrowBack,
-                contentDescription = stringResource(id = androidx.core.R.string.status_bar_notification_info_overflow)
-            )
-        }
-        IconButton( modifier = Modifier.weight(3f), onClick = {
-            val sendIntent: Intent = Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, "This is my text to send.")
-                type = "text/plain"
+        Column(modifier = Modifier.weight(1f)) {
+            IconButton(
+                onClick = { nav.navigateUp() },
+                modifier = Modifier
+                    .padding(start = Dimens.ToolbarIconPadding)
+                    .background(brush = brush)
+                    .then(iconModifier)
+            ) {
+                Icon(
+                    Icons.Filled.ArrowBack,
+                    contentDescription = stringResource(id = androidx.core.R.string.status_bar_notification_info_overflow)
+                )
             }
-            val shareIntent = Intent.createChooser(sendIntent, null)
-            context.startActivity( shareIntent );
-        }) {
-            Icon( Icons.Rounded.Share , "")
         }
+        Column(modifier = Modifier.weight(5f)) {
+
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            IconButton(onClick = {
+                share(ctx = context , text = "<html><body><div>Dominik Christ</div><div>Christ</div></body></html>" , t = "text/html")
+            }) {
+                Icon( Icons.Rounded.Share , "999999")
+            }
+        }
+
+
+
+
     }
 }
 

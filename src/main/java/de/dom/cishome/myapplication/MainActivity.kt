@@ -24,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import de.dom.cishome.myapplication.compose.home.home
 import de.dom.cishome.myapplication.compose.membership.page.MembershipWelcomePage
@@ -63,6 +64,9 @@ fun App(){
     var state = rememberPermissionState(
         android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
     )
+
+
+
     val repo = FileRep( LocalContext.current , state );
     val playerService: PlayerService = PlayerService( repo );
 
@@ -83,6 +87,8 @@ fun App(){
         }
         
         playerGraph( navController = navController , playerService = playerService)
+
+        competitionGraph(navController, playerService)
 
     }
 

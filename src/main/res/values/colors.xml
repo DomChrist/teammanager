@@ -7,4 +7,23 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="red_200">#EF9A9A</color>
+
+    <color name="red_50">#FFEBEE</color>
+    <color name="red_900">#B71C1C</color>
+
+    <!-- app -->
+    <color name="primary">#ff37474f</color>
+    <color name="secondary">#fffafafa</color>
+
+
+
+    <!-- competition -->
+    <color name="competition_head">#DCE775</color>
+    <color name="competition_primary">#ff333366</color>
+    <color name="competition_secondary">#9575CD</color>
+    <color name="competition_back">#FFFFFFFF</color>
+    <color name="competition_font_primary">#283593</color>
+    <color name="competition_font_secondary">#FFFFFFFF</color>
+
 </resources>
