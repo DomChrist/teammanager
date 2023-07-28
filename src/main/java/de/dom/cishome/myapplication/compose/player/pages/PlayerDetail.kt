@@ -1,6 +1,5 @@
 package de.dom.cishome.myapplication.compose.player.pages
 
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,11 +41,11 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import de.dom.cishome.myapplication.compose.Dimens
 import de.dom.cishome.myapplication.compose.player.component.NavItem
+import de.dom.cishome.myapplication.compose.player.component.PlayerDetailViewLayout
 import de.dom.cishome.myapplication.compose.player.component.PlayerImage
 import de.dom.cishome.myapplication.compose.player.service.Player
 import de.dom.cishome.myapplication.compose.player.service.PlayerService
 import de.dom.cishome.myapplication.compose.shared.PlayerHelper
-import de.dom.cishome.myapplication.compose.shared.TmDevice
 import de.dom.cishome.myapplication.compose.shared.share
 import java.time.LocalDate
 import java.util.UUID
@@ -77,13 +76,31 @@ fun PlayerDetailPage(
 @ExperimentalPermissionsApi
 private fun content(player: Player?, service: PlayerService, nav: NavController) {
 
-    PlayerImage( player)
+    var nav1 = if( player != null ) arrayListOf<PlayerNavItem>(
+        PlayerNavItem(
+            "Kontaktperson",
+            "bearbeiten",
+            click = {
+                PlayerHelper.jump(
+                    player!!,
+                    nav,
+                    "player/detail/${player.id}/contacts"
+                )
+            }),
+        PlayerNavItem(
+            "Kontaktperson",
+            "bearbeiten",
+            click = {
+                PlayerHelper.jump(
+                    player,
+                    nav,
+                    "player/detail/${player.id}/contacts"
+                )
+            })
+    ) else arrayListOf();
 
-    if(player != null){
-        PlayerDetail(p = player, service, nav)
-    }
+    PlayerDetailViewLayout( player!! , nav1 , nav )
 
-    header(nav = nav)
 }
 
 @Composable
@@ -215,15 +232,14 @@ fun PlayerDetail(p: Player, service: PlayerService, nav: NavController){
 fun playerDetailPreview(){
     val navController = rememberNavController()
 
-    val p = Player(UUID.randomUUID().toString() , "Dominik" , "Christ" , LocalDate.now().withYear(1988))
+    val p = Player(UUID.randomUUID().toString() , "Dominik" , "Christ" , LocalDate.now().withYear(1988) , "Bambini",false)
 
     var service = PlayerService( null );
 
-    PlayerImage( p )
+    var nav = arrayListOf<PlayerNavItem>( PlayerNavItem("Kontakt" , "bearbeiten" , {}) )
 
-    PlayerDetail(p = p, service = service, nav = navController)
+    PlayerDetailViewLayout( p , nav , navController )
 
-    header(nav = navController)
 
 }
 

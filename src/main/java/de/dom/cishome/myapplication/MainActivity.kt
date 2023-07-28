@@ -24,13 +24,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import de.dom.cishome.myapplication.compose.home.home
 import de.dom.cishome.myapplication.compose.membership.page.MembershipWelcomePage
 import de.dom.cishome.myapplication.compose.player.service.PlayerService
 import de.dom.cishome.myapplication.compose.playground.pages.PlayGroundPage
-import de.dom.cishome.myapplication.compose.shared.FileRep
+import de.dom.cishome.myapplication.compose.player.model.player.FileRep
+import de.dom.cishome.myapplication.compose.team.teamGraph
 import de.dom.cishome.myapplication.compose.turnier.page.TurnierWelcomePage
 
 @ExperimentalUnitApi
@@ -89,6 +89,8 @@ fun App(){
         playerGraph( navController = navController , playerService = playerService)
 
         competitionGraph(navController, playerService)
+
+        teamGraph(navController)
 
     }
 

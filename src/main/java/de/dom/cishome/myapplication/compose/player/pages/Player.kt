@@ -1,8 +1,6 @@
 package de.dom.cishome.myapplication.compose.player.pages
 
-import android.Manifest
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -20,9 +17,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.navigation.NavHostController
 import de.dom.cishome.myapplication.compose.player.service.PlayerService
 import java.lang.NumberFormatException
 import java.time.LocalDate
@@ -30,7 +25,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Tab
@@ -44,11 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
 import de.dom.cishome.myapplication.compose.home.TmComponents
 import de.dom.cishome.myapplication.compose.player.service.Player
-import de.dom.cishome.myapplication.compose.shared.PlayerRepository
+import de.dom.cishome.myapplication.compose.player.model.player.PlayerRepository
 import de.dom.cishome.myapplication.compose.shared.TmColors
 
 
@@ -71,8 +63,6 @@ fun player(playerService: PlayerService, nc: NavController) {
     ){contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) { content(playerService,nc) }
     }
-
-
 }
 
 @Composable
@@ -183,12 +173,12 @@ fun TrialItemView( p: Player , playerService: PlayerService , nc: NavController 
 @Preview
 fun PlayerWelcomePagePreview(){
 
-    class MyRepo : PlayerRepository{
+    class MyRepo : PlayerRepository {
         override fun players(): List<Player> {
             return listOf<Player>(
-                Player("1234" , "t1" , "t2" , LocalDate.now() , false),
-                Player("1234" , "t1" , "t2" , LocalDate.now() , true),
-                Player("1234" , "t1" , "t2" , LocalDate.now() , false),
+                Player("1234" , "t1" , "t2" , LocalDate.now() , "bambini",false),
+                Player("1234" , "t1" , "t2" , LocalDate.now() , "bambini",true),
+                Player("1234" , "t1" , "t2" , LocalDate.now() , "bambini",false),
             )
         }
 

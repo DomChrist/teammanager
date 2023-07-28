@@ -176,7 +176,7 @@ fun menuCard( i: HomeScreenMenuItem, nav: NavController){
 class MenuData {
 
     var list = listOf<HomeScreenMenuItem>(
-        HomeScreenMenuItem("Verein" , "club", R.drawable.clublogo),
+        HomeScreenMenuItem("Verein" , "team", R.drawable.clublogo),
         HomeScreenMenuItem("Player" , "player", R.drawable.club),
         HomeScreenMenuItem("Turnier" , "competition", R.drawable.tuniert),
         HomeScreenMenuItem("Mitglieder" , "membership", R.drawable.member),

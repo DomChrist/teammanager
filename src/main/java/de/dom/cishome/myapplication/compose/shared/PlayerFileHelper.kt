@@ -71,5 +71,18 @@ open class PlayerFileHelper {
         return dir;
     }
 
+    fun moduleDir( module: String ): File {
+        var m = module.lowercase();
+        val dir = File( tm().absolutePath + "/tm/${m}" )
+        if( !dir.exists()) dir.mkdirs();
+        return dir;
+    }
+
+    fun moduleDir( module: String, path: String ): File {
+        var m = module.lowercase();
+        val dir = File( tm().absolutePath + "/tm/${m}/${path}" )
+        if( !dir.exists()) dir.mkdirs();
+        return dir;
+    }
 
 }

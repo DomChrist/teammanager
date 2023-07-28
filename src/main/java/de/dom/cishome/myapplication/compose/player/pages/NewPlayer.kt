@@ -59,8 +59,9 @@ fun NewPlayerPage( playerService: PlayerService, nav: NavController){
         remember { mutableStateOf(TextFieldValue()) },
         remember { mutableStateOf(TextFieldValue()) },
         remember { mutableStateOf(TextFieldValue()) },
-        remember { mutableStateOf(false) }
-    )
+        remember { mutableStateOf(false) },
+        remember { mutableStateOf(TextFieldValue()) }
+        )
 
     Scaffold(
         topBar = {AddPlayerTopBar(service = playerService, cmd = cmd, nav = nav )}
@@ -141,6 +142,9 @@ private fun Body( playerService: PlayerService, nav: NavController, cmd: NewPlay
                                     Checkbox(checked = cmd.trial.value, onCheckedChange = { cmd.trial.value = it })
                                     Text("Schnupperer")
                                 }
+                                Row() {
+                                    RowField(name = "Team", input = cmd.team)
+                                }
                             }
                         }
                     }
@@ -185,6 +189,7 @@ fun go( playerService: PlayerService, cmd: NewPlayerCommand, nav: NavController 
         cmd.givenName.value.text,
         cmd.familyName.value.text,
         cmd.jahrgang.value,
+        cmd.team.value.text,
         cmd.trial.value
     )
     playerService.add( p );
@@ -200,6 +205,7 @@ data class NewPlayerCommand(
     var contactGivenFamilyName: MutableState<TextFieldValue>,
     var contactPhone: MutableState<TextFieldValue>,
     var trial: MutableState<Boolean>,
+    var team: MutableState<TextFieldValue>,
     var step: MutableState<Int> = mutableStateOf(0)
     ){
         fun inc(){

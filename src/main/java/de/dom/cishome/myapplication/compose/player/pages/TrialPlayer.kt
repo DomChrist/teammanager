@@ -125,7 +125,7 @@ private fun BottomSheet(counter: MutableState<Int>) {
 @ExperimentalMaterialApi
 private fun TrialPlayerDetailPreview(){
     var nav = rememberNavController()
-    var p = Player("1234", "Dominik", "Christ" , LocalDate.now() , true)
+    var p = Player("1234", "Dominik", "Christ" , LocalDate.now() , "Bambini",true)
     var l = listOf<PlayerNavItem>( PlayerNavItem(first = "Kontaktpersonen" , second = "Bearbeiten" , click = {}) )
     var click = remember{ mutableStateOf(0) }
     TrialPlayerContent(p, l, nav, click)

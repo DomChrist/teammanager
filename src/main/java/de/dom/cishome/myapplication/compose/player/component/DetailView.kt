@@ -17,10 +17,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.ChipBorder
+import androidx.compose.material3.ChipColors
 import androidx.compose.material3.Divider
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -47,8 +49,10 @@ import de.dom.cishome.myapplication.compose.home.TmComponents
 import de.dom.cishome.myapplication.compose.player.pages.PlayerNavItem
 import de.dom.cishome.myapplication.compose.player.service.Player
 import de.dom.cishome.myapplication.compose.shared.PlayerFileHelper
+import de.dom.cishome.myapplication.compose.shared.TmColors
 import de.dom.cishome.myapplication.compose.shared.shotPlayerImage
 import java.io.File
+import java.lang.Exception
 import java.time.LocalDate
 import java.util.UUID
 
@@ -57,30 +61,107 @@ fun PlayerDetailViewLayout(p: Player, items: List<PlayerNavItem>, nav: NavContro
 
     val tm = TmComponents();
 
-    Scaffold(topBar = { topBar(nav) } ) {
-        Box( modifier = Modifier.padding(it) ){
-            Column {
-                Row() {
-                    Column() {
-                        PlayerImage(p = null)
-                    }
+    content(p = p, nav = nav, items)
+
+}
+
+@Composable
+private fun content(p: Player, nav: NavController, items: List<PlayerNavItem>){
+    var COMP = TmComponents();
+
+    Scaffold( topBar = {COMP.stage1HeaderCustomize(title = "${p.fullName()}", nav = nav, color = TmColors.App)} ) {
+        Box(Modifier.padding(it)){
+            PlayerBox(p,items)
+            PlayerDetail( p , items )
+        }
+    }
+}
+
+@Composable
+private fun PlayerBox(p: Player, items: List<PlayerNavItem>){
+    var max = Modifier.fillMaxWidth();
+    var colors = AssistChipDefaults.assistChipColors(containerColor = TmColors.App.primary , labelColor = TmColors.App.primaryText)
+    var assistBox = Modifier
+        .fillMaxWidth()
+        .padding(10.dp);
+
+    Column(max) {
+        Row(max) {
+            Column(Modifier.weight(2f)) {
+                Row {
+                    AssistChip( modifier=assistBox, colors=colors, onClick = {  }, label = {Text(text = "${p.dateOfBirth?.year}")} )
                 }
-
-                PlayerName( p.fullName() )
-
-                Divider()
-
-                Tags( p )
-
-                PlayerDetailNavigation( items )
-
             }
-
-
+            Column(Modifier.weight(5f)) {
+                Row(modifier = Modifier.padding(0.dp , 25.dp)){
+                    PlayerImage(p = p)
+                }
+            }
+            Column(Modifier.weight(2f)) {
+                Row {
+                    var trialChipColor: ChipColors;
+                    var border: ChipBorder;
+                    if( !p.trial ){
+                        trialChipColor = AssistChipDefaults.assistChipColors( containerColor = Color.Red, labelColor = Color.White );
+                        border = AssistChipDefaults.assistChipBorder(borderColor = Color.Red)
+                    } else {
+                        trialChipColor = AssistChipDefaults.assistChipColors( containerColor = Color.Green, labelColor = Color.White );
+                        border = AssistChipDefaults.assistChipBorder(borderColor = Color.Green)
+                    }
+                    var txt = if(p.trial) "AKTIV" else "TRIAL";
+                    AssistChip( modifier=assistBox, colors=trialChipColor, border = border, onClick = {  }, label = {Text(text = txt)} )
+                }
+            }
         }
     }
 
+    Box(){
+
+    }
+
+
 }
+
+@Composable
+private fun PlayerDetail(p: Player, items: List<PlayerNavItem>) {
+    var COLORS = TmColors.App;
+    var assistBox = Modifier
+        .fillMaxWidth()
+        .padding(10.dp);
+
+    Box(Modifier.padding(5.dp , 150.dp)){
+
+        Row(){
+            Column(modifier = Modifier.weight(2f)) {
+                AssistChip( modifier = assistBox, onClick = {  }, label = { Text("${p.team.uppercase()}" , textAlign = TextAlign.Center) } )
+            }
+            Column(modifier = Modifier.weight(5f)) {}
+            Column(modifier = Modifier.weight(2f)) {
+                AssistChip( modifier = assistBox, onClick = {  }, label = { Icon(Icons.Filled.Share,"") } )
+            }
+        }
+
+        Row( Modifier.padding(0.dp , 55.dp) ){
+            Column() {
+                Row {
+                    Text( modifier = Modifier.fillMaxWidth(),
+                        color = COLORS.primary, fontSize=TextUnit(5.5f,TextUnitType.Em),
+                        fontWeight = FontWeight.Bold,
+                        text = p.fullName(), textAlign = TextAlign.Center )
+                }
+                Row(){
+                    Divider()
+                }
+                Row(){
+                    PlayerDetailNavigation(items =  items )
+                }
+            }
+        }
+
+    }
+
+}
+
 
 @Composable
 fun Tags( p: Player ){
@@ -105,7 +186,7 @@ fun Tags( p: Player ){
 
 @Composable
 fun PlayerDetailNavigation(items: List<PlayerNavItem>) {
-    Row( modifier = Modifier.padding(25.dp , 10.dp) ) {
+    Row( modifier = Modifier.padding(10.dp , 10.dp) ) {
         Column() {
             LazyColumn(){
                 items(items){
@@ -149,8 +230,12 @@ fun PlayerImage( p: Player? ){
 
     var file: File? = null;
     val playerImage: Boolean = if( p != null ){
-        file = File(PlayerFileHelper().playerDir(id),"main.jpg"); File( Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${id}/main.jpg" )
-        file != null && file.exists()
+        try{
+            file = File(PlayerFileHelper().playerDir(id),"main.jpg"); File( Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${id}/main.jpg" )
+            file != null && file.exists()
+        }catch ( e: Exception ){
+            false;
+        }
     } else {
         false;
     }
@@ -213,7 +298,7 @@ fun PlayerImage( p: Player? ){
 @Preview
 fun PlayerDetailViewComponentPreview(){
     val controller = rememberNavController()
-    val p = Player(UUID.randomUUID().toString(),"Dominik" , "Christ" , LocalDate.now() , true)
+    val p = Player(UUID.randomUUID().toString(),"Dominik" , "Christ" , LocalDate.now() , "Bambini",true)
 
     var nav1 = PlayerNavItem("Eigenschaften" , "" , click = {})
 

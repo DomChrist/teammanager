@@ -1,10 +1,8 @@
 package de.dom.cishome.myapplication.compose.player.service
 
-import com.google.gson.Gson
-import de.dom.cishome.myapplication.compose.shared.PlayerRepository
+import de.dom.cishome.myapplication.compose.player.model.player.PlayerRepository
 import java.io.Serializable
 import java.time.LocalDate
-import java.util.Date
 import java.util.UUID
 
 class PlayerService( val rep: PlayerRepository? ) {
@@ -45,7 +43,7 @@ class PlayerService( val rep: PlayerRepository? ) {
 
 
 data class Player( val id: String = UUID.randomUUID().toString(), val givenName: String, val familyName: String, val dateOfBirth: LocalDate,
-var trial: Boolean = false): Serializable{
+var team: String, var trial: Boolean = false): Serializable{
     fun fullName(): String {
         return this.givenName + " " + this.familyName;
     }
