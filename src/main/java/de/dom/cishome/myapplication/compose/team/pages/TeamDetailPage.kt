@@ -48,7 +48,7 @@ private fun content(team: Team, nav:NavController, onSelect: () -> Unit) {
     var list = listOf<NavBarItem>(
         NavBarItem("TRAINER", Icon(imageVector = Icons.Filled.Person , "9999")){
             nav.currentBackStackEntry!!.savedStateHandle["TEAM"] = mutableStateOf(team);
-            nav.navigate("team/detail/player")
+            nav.navigate("team/${team.id}/detail/player")
         },
         NavBarItem("SPIELER", Icon(imageVector = Icons.Filled.Person , "9999")) {
             nav.currentBackStackEntry!!.savedStateHandle["TEAM"] = mutableStateOf(team)

@@ -1,11 +1,17 @@
 package de.dom.cishome.myapplication.compose.team.pages
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -26,7 +32,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +45,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.rememberNavController
+import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.home.TmComponents
 import de.dom.cishome.myapplication.compose.shared.TmColors
 import de.dom.cishome.myapplication.compose.team.components.TeamComponents
@@ -70,31 +79,47 @@ private fun content(model: TeamViewModel, nav: NavController, onSelect: (t: Team
         floatingActionButtonPosition = FabPosition.End,
         bottomBar = { footer(theme = theme)}) {
             Box( modifier = Modifier.padding(it) ){
-                Row() {
-                    LazyVerticalGrid(columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(15.dp),
-                        verticalArrangement = Arrangement.spacedBy(25.dp),
-                        horizontalArrangement = Arrangement.spacedBy(25.dp) ){
-                        items( model.repo.readAll() ){
-                            Card( onClick = {onSelect(it)} ) {
-                                Text(text = "${it.label}" ,
-                                    color=TmColors.primaryColor,
-                                    fontWeight=FontWeight.Bold,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(25.dp),
-                                    textAlign = TextAlign.Center)
+
+                Column {
+                    Row{
+                        Column {
+                            Row{
+                                Card(modifier = Modifier.padding(35.dp)) {
+                                    Image(
+                                        contentScale = ContentScale.FillBounds,
+                                        painter = painterResource(R.drawable.trainer),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(55.dp, 155.dp) , contentDescription = "")
+                                    Row( modifier = Modifier.fillMaxWidth() ){
+                                        Text(modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(15.dp) , text = "TRAINER" , textAlign = TextAlign.Center , fontSize = TextUnit(7f,
+                                            TextUnitType.Em))
+                                    }
+                                }
                             }
+                            Row{
+                                Card(modifier = Modifier.padding(35.dp)) {
+                                    Image(
+                                        contentScale = ContentScale.FillBounds,
+                                        painter = painterResource(R.drawable.teamplayer),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(55.dp, 155.dp) , contentDescription = "")
+                                    Row( modifier = Modifier.fillMaxWidth() ){
+                                        Text(modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(15.dp) , text = "TEAMS" , textAlign = TextAlign.Center , fontSize = TextUnit(7f,
+                                            TextUnitType.Em))
+                                    }
+                                }
+                            }
+
                         }
                     }
                 }
             }
-    }
-
-    if( showCreateDialog.value ){
-        TeamComponents.CreateTeamDialog(onDismissRequest = { showCreateDialog.value = false }, onCreate = {
-            model.handle(it)
-        })
     }
 
 }

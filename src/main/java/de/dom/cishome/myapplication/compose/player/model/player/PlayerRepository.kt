@@ -1,16 +1,11 @@
 package de.dom.cishome.myapplication.compose.player.model.player
 
-import android.content.Context
-import android.os.Environment
 import android.util.Log
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
 import de.dom.cishome.myapplication.compose.player.service.Player
 import de.dom.cishome.myapplication.compose.shared.GsonUtils
 import de.dom.cishome.myapplication.compose.shared.PlayerFileHelper
-import java.io.File
 import java.io.FileNotFoundException
-import java.io.FileOutputStream
 import java.io.FileReader
 import java.lang.Exception
 
@@ -23,8 +18,6 @@ interface PlayerRepository{
 
 
     fun write(p: Player)
-
-
 
 }
 

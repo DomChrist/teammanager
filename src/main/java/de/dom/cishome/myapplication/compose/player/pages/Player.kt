@@ -182,6 +182,10 @@ fun PlayerWelcomePagePreview(){
             )
         }
 
+        override fun playersByTeam(team: String): List<Player> {
+            TODO("Not yet implemented")
+        }
+
         override fun write(p: Player) {
         }
 

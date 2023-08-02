@@ -7,9 +7,13 @@ class TeamViewModel(var repo: TeamPersistencePort ) : ViewModel() {
 
     var selected: Team? = null;
 
-    fun handle( c: CreateTeamCommand ){
+    fun handle( c: CreateTeamCommand , onSuccess:()->Unit ){
         var team = Team( UUID.randomUUID().toString() , c.name );
-        this.repo.write( team );
+        Thread{
+            Thread.sleep(2000)
+            this.repo.write( team );
+            onSuccess()
+        }.start();
     }
 
 }

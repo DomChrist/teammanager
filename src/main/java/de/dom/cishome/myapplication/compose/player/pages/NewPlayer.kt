@@ -40,6 +40,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import de.dom.cishome.myapplication.compose.player.service.Player
 import de.dom.cishome.myapplication.compose.player.service.PlayerService
+import de.dom.cishome.myapplication.tm.application.domain.service.NewPlayerDomainCommand
 import java.lang.Exception
 import java.time.Instant
 import java.time.LocalDate
@@ -211,7 +212,19 @@ data class NewPlayerCommand(
         fun inc(){
             this.step.value = this.step.value.inc();
         }
+
+    fun toDomainCommand(): NewPlayerDomainCommand {
+        return NewPlayerDomainCommand(
+            UUID.randomUUID().toString(),
+            this.givenName.value.text,
+            this.familyName.value.text,
+            this.jahrgang.value,
+            this.team.value.text,
+            this.trial.value,
+            false
+        )
     }
+}
 
 @Composable
 fun JahrGang( value: MutableState<LocalDate> ){
