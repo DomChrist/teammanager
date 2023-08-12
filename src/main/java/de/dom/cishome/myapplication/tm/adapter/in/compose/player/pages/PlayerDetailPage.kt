@@ -48,6 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.home.TmComponents
@@ -56,264 +57,302 @@ import de.dom.cishome.myapplication.compose.player.pages.PlayerNavItem
 import de.dom.cishome.myapplication.compose.shared.PlayerFileHelper
 import de.dom.cishome.myapplication.compose.shared.TmColors
 import de.dom.cishome.myapplication.compose.shared.shotPlayerImage
-import de.dom.cishome.myapplication.tm.application.domain.model.Player
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.model.PlayerViewModel
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
+import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import java.io.File
 import java.lang.Exception
 import java.time.LocalDate
 
-@Composable
-fun PlayerDetailPage(p: Player, items: List<PlayerNavItem>, onBackClick: () -> Unit, ){
 
-    layout(p, onBackClick, items)
-}
+class PlayerDetailPage {
 
 
-@Composable
-private fun layout(p: Player, onBackClick: () -> Unit, items: List<PlayerNavItem>){
-    var COMP = TmComponents();
-    var counter = remember{ mutableStateOf(0) }
+
+    @Composable
+    fun Screen(
+        playerId: String,
+        clicks: PlayerDetailClick,
+        model: PlayerViewModel = viewModel( factory = PlayerViewModel.PlayerViewFactory(playerId) )
+    ){
+        var playerState = remember{ mutableStateOf<Player?>(null) }
+        model.player.observeForever { playerState.value = it }
+
+        if( playerState.value != null ){
+            var player = playerState.value!!;
+            val navItems = PlayerViewModel.navItemsBy(player, clicks)
+            layout( player , clicks, navItems )
+        } else {
+            Tm.components().Loading()
+        }
+    }
 
 
-    if( p.trial ){
-        BottomSheetScaffold( sheetContent = {
-            BottomSheet( counter )
-        }) {
-            Scaffold( topBar = {header( onBackClick )} ) {
+    @Composable
+    fun layout( p: Player, clicks: PlayerDetailClick , items: List<PlayerNavItem> ){
+
+        var COMP = TmComponents();
+        var counter = remember{ mutableStateOf(0) }
+
+
+        if( p.trial ){
+            BottomSheetScaffold( sheetContent = {
+                BottomSheet( counter )
+            }) {
+                Scaffold( topBar = {header( clicks.back )} ) {
+                    Box(Modifier.padding(it)){
+                        PlayerBox(p, listOf())
+                        PlayerDetail(p = p, items = items)
+                    }
+                }
+            }
+        } else {
+            Scaffold( topBar = {header( clicks.back )} ) {
                 Box(Modifier.padding(it)){
                     PlayerBox(p, listOf())
                     PlayerDetail(p = p, items = items)
                 }
             }
         }
-    } else {
-        Scaffold( topBar = {header( onBackClick )} ) {
-            Box(Modifier.padding(it)){
-                PlayerBox(p, listOf())
-                PlayerDetail(p = p, items = items)
-            }
-        }
+
     }
 
+    @Composable
+    private fun PlayerDetail(p: Player, items: List<PlayerNavItem>) {
+        var COLORS = TmColors.App;
+        var assistBox = Modifier
+            .fillMaxWidth()
+            .padding(10.dp);
 
-}
+        Box(Modifier.padding(5.dp , 150.dp)){
 
-@Composable
-private fun header(onBackClick: () -> Unit) {
-    var title = "Spieleransicht"
-    var color = TmColors.App;
-    var defaults = TopAppBarDefaults.topAppBarColors( containerColor = color.primary )
-    TopAppBar(
-        title = { Text(title , color=color.primaryText) },
-        navigationIcon = {
-            IconButton(onClick = onBackClick ) {
-                Icon(Icons.Filled.ArrowBack, tint=color.primaryText, contentDescription = null)
-            }
-        },
-        actions = {
-            // RowScope here, so these icons will be placed horizontally
-            IconButton(onClick = onBackClick) {
-                Icon(Icons.Filled.Menu, tint=color.primaryText, contentDescription = "Localized description")
-            }
-        },
-        colors = defaults
-    )
-}
-
-@Composable
-private fun PlayerBox(p: Player, items: List<PlayerNavItem>){
-    var max = Modifier.fillMaxWidth();
-    var colors = AssistChipDefaults.assistChipColors(containerColor = TmColors.App.primary , labelColor = TmColors.App.primaryText)
-    var assistBox = Modifier
-        .fillMaxWidth()
-        .padding(10.dp);
-
-    Column(max) {
-        Row(max) {
-            Column(Modifier.weight(2f)) {
-                Row {
-                    AssistChip( modifier=assistBox, colors=colors, onClick = {  }, label = {Text(text = "${p.dateOfBirth?.year}")} )
+            Row(){
+                Column(modifier = Modifier.weight(2f)) {
+                    var t = if( p.team == null) "N.A." else p.team.uppercase();
+                    AssistChip( modifier = assistBox, onClick = {  }, label = { Text("${t}" , textAlign = TextAlign.Center) } )
+                }
+                Column(modifier = Modifier.weight(5f)) {}
+                Column(modifier = Modifier.weight(2f)) {
+                    AssistChip( modifier = assistBox, onClick = {  }, label = { Icon(Icons.Filled.Share,"") } )
                 }
             }
-            Column(Modifier.weight(5f)) {
-                Row(modifier = Modifier.padding(0.dp , 25.dp)){
-                    PlayerImage(p = p)
-                }
-            }
-            Column(Modifier.weight(2f)) {
-                Row {
-                    var trialChipColor: ChipColors;
-                    var border: ChipBorder;
-                    if( !p.trial ){
-                        trialChipColor = AssistChipDefaults.assistChipColors( containerColor = Color.Red, labelColor = Color.White );
-                        border = AssistChipDefaults.assistChipBorder(borderColor = Color.Red)
-                    } else {
-                        trialChipColor = AssistChipDefaults.assistChipColors( containerColor = Color.Green, labelColor = Color.White );
-                        border = AssistChipDefaults.assistChipBorder(borderColor = Color.Green)
+
+            Row( Modifier.padding(0.dp , 55.dp) ){
+                Column() {
+                    Row {
+                        Text( modifier = Modifier.fillMaxWidth(),
+                            color = COLORS.primary, fontSize= TextUnit(5.5f, TextUnitType.Em),
+                            fontWeight = FontWeight.Bold,
+                            text = p.fullName(), textAlign = TextAlign.Center )
                     }
-                    var txt = if(p.trial) "AKTIV" else "TRIAL";
-                    AssistChip( modifier=assistBox, colors=trialChipColor, border = border, onClick = {  }, label = {Text(text = txt)} )
+                    Row(){
+                        Divider()
+                    }
+                    Row(){
+                        PlayerDetailNavigation(items =  items )
+                    }
                 }
             }
-        }
-    }
 
-    Box(){
-
-    }
-
-
-}
-
-@Composable
-private fun PlayerDetail(p: Player, items: List<PlayerNavItem>) {
-    var COLORS = TmColors.App;
-    var assistBox = Modifier
-        .fillMaxWidth()
-        .padding(10.dp);
-
-    Box(Modifier.padding(5.dp , 150.dp)){
-
-        Row(){
-            Column(modifier = Modifier.weight(2f)) {
-                var t = if( p.team == null) "N.A." else p.team.uppercase();
-                AssistChip( modifier = assistBox, onClick = {  }, label = { Text("${t}" , textAlign = TextAlign.Center) } )
-            }
-            Column(modifier = Modifier.weight(5f)) {}
-            Column(modifier = Modifier.weight(2f)) {
-                AssistChip( modifier = assistBox, onClick = {  }, label = { Icon(Icons.Filled.Share,"") } )
-            }
-        }
-
-        Row( Modifier.padding(0.dp , 55.dp) ){
-            Column() {
-                Row {
-                    Text( modifier = Modifier.fillMaxWidth(),
-                        color = COLORS.primary, fontSize= TextUnit(5.5f, TextUnitType.Em),
-                        fontWeight = FontWeight.Bold,
-                        text = p.fullName(), textAlign = TextAlign.Center )
-                }
-                Row(){
-                    Divider()
-                }
-                Row(){
-                    PlayerDetailNavigation(items =  items )
-                }
-            }
         }
 
     }
 
-}
+    @Composable
+    private fun PlayerBox(p: Player, items: List<PlayerNavItem>){
+        var max = Modifier.fillMaxWidth();
+        var colors = AssistChipDefaults.assistChipColors(containerColor = TmColors.App.primary , labelColor = TmColors.App.primaryText)
+        var assistBox = Modifier
+            .fillMaxWidth()
+            .padding(10.dp);
 
-@Composable
-private fun BottomSheet(counter: MutableState<Int>) {
-    Box( modifier = Modifier.padding(0.dp , 15.dp) ) {
-        Row(){
-            Column() {
-                Row( modifier = Modifier.padding(15.dp , 15.dp) ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        FilledIconButton( modifier = Modifier
-                            .padding(5.dp, 0.dp)
-                            .fillMaxWidth(), onClick = { counter.value = counter.value.inc() }) {
-                            Icon( Icons.Filled.Clear , "" )
-                        }
-                    }
-                    Column(modifier = Modifier.weight(3f)) {
-                        Button( modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .fillMaxWidth(), onClick = { counter.value = counter.value.inc() }) {
-                            Text(text = "# ${counter.value}")
-                        }
-                    }
-                    Column(modifier = Modifier.weight(1f)) {
-                        FilledIconButton( modifier = Modifier
-                            .padding(5.dp, 0.dp)
-                            .fillMaxWidth(), onClick = { counter.value = counter.value.dec() }) {
-                            Icon(Icons.Filled.Clear , "")
-                        }
+        Column(max) {
+            Row(max) {
+                Column(Modifier.weight(2f)) {
+                    Row {
+                        AssistChip( modifier=assistBox, colors=colors, onClick = {  }, label = {Text(text = "${p.dateOfBirth?.year}")} )
                     }
                 }
-                Row( modifier = Modifier.padding( 15.dp , 15.dp) ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Button( modifier = Modifier.fillMaxWidth(), onClick = { /*TODO*/ }) {
-                            Text("BEENDEN")
-                        }
+                Column(Modifier.weight(5f)) {
+                    Row(modifier = Modifier.padding(0.dp , 25.dp)){
+                        PlayerImage(p = p)
                     }
-                    Column(modifier = Modifier.weight(1f)) {
-                        Button( modifier = Modifier.fillMaxWidth(), onClick = { /*TODO*/ }) {
-                            Text("ZURÜCKSETZEN")
-                        }
+                }
+                Column(Modifier.weight(2f)) {
+                    Row {
+                        TrialChip(p = p, modifier = assistBox)
                     }
                 }
             }
         }
 
+        Box(){
+
+        }
+
 
     }
-}
+
+    @Composable
+    private fun header(onBackClick: () -> Unit) {
+        var title = "Spieleransicht"
+        var color = TmColors.App;
+        var defaults = TopAppBarDefaults.topAppBarColors( containerColor = color.primary )
+        TopAppBar(
+            title = { Text(title , color=color.primaryText) },
+            navigationIcon = {
+                IconButton(onClick = onBackClick ) {
+                    Icon(Icons.Filled.ArrowBack, tint=color.primaryText, contentDescription = null)
+                }
+            },
+            actions = {
+                // RowScope here, so these icons will be placed horizontally
+                IconButton(onClick = onBackClick) {
+                    Icon(Icons.Filled.Menu, tint=color.primaryText, contentDescription = "Localized description")
+                }
+            },
+            colors = defaults
+        )
+    }
+
+    @Composable
+    private fun BottomSheet(counter: MutableState<Int>) {
+        Box( modifier = Modifier.padding(0.dp , 15.dp) ) {
+            Row(){
+                Column() {
+                    Row( modifier = Modifier.padding(15.dp , 15.dp) ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            FilledIconButton( modifier = Modifier
+                                .padding(5.dp, 0.dp)
+                                .fillMaxWidth(), onClick = { counter.value = counter.value.inc() }) {
+                                Icon( Icons.Filled.Clear , "" )
+                            }
+                        }
+                        Column(modifier = Modifier.weight(3f)) {
+                            Button( modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .fillMaxWidth(), onClick = { counter.value = counter.value.inc() }) {
+                                Text(text = "# ${counter.value}")
+                            }
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            FilledIconButton( modifier = Modifier
+                                .padding(5.dp, 0.dp)
+                                .fillMaxWidth(), onClick = { counter.value = counter.value.dec() }) {
+                                Icon(Icons.Filled.Clear , "")
+                            }
+                        }
+                    }
+                    Row( modifier = Modifier.padding( 15.dp , 15.dp) ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Button( modifier = Modifier.fillMaxWidth(), onClick = { /*TODO*/ }) {
+                                Text("BEENDEN")
+                            }
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Button( modifier = Modifier.fillMaxWidth(), onClick = { /*TODO*/ }) {
+                                Text("ZURÜCKSETZEN")
+                            }
+                        }
+                    }
+                }
+            }
 
 
+        }
+    }
 
-@Composable
-private fun PlayerImage( p: Player? ){
-    var id = p?.id ?: "unkown";
-    var c = LocalContext.current;
+    @Composable
+    fun PlayerImage( p: Player? ){
+        var id = p?.id ?: "unkown";
+        var c = LocalContext.current;
 
-    var file: File? = null;
-    val playerImage: Boolean = if( p != null ){
-        try{
-            file = File(PlayerFileHelper().playerDir(id),"main.jpg"); File( Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${id}/main.jpg" )
-            file != null && file.exists()
-        }catch ( e: Exception){
+        var file: File? = null;
+        val playerImage: Boolean = if( p != null ){
+            try{
+                file = File(PlayerFileHelper().playerDir(id),"main.jpg"); File( Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${id}/main.jpg" )
+                file != null && file.exists()
+            }catch ( e: Exception){
+                false;
+            }
+        } else {
             false;
         }
-    } else {
-        false;
-    }
 
-    var m = Modifier
-        .size(130.dp)
-        .clip(CircleShape)
-        .border(2.dp, Color.Gray, CircleShape);
+        var m = Modifier
+            .size(130.dp)
+            .clip(CircleShape)
+            .border(2.dp, Color.Gray, CircleShape);
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = Color.White.copy(alpha = 0.6f))
-            .clickable { shotPlayerImage(p!!.id, c) }
-            .padding(5.dp)) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = Color.White.copy(alpha = 0.6f))
+                .clickable { shotPlayerImage(p!!.id, c) }
+                .padding(5.dp)) {
 
-        if( playerImage ){
-            AsyncImage(
-                model = file,
-                placeholder = painterResource( R.drawable.club ),
-                contentScale = ContentScale.FillBounds,
-                modifier = m
-                ,
-                contentDescription = null,
-            )
-        } else {
-            Image(painter = painterResource(id = R.drawable.club),
-                contentScale = ContentScale.FillBounds,
-                contentDescription = "" ,
-                modifier = m
-            )
+            if( playerImage ){
+                AsyncImage(
+                    model = file,
+                    placeholder = painterResource( R.drawable.club ),
+                    contentScale = ContentScale.FillBounds,
+                    modifier = m
+                    ,
+                    contentDescription = null,
+                )
+            } else {
+                Image(painter = painterResource(id = R.drawable.club),
+                    contentScale = ContentScale.FillBounds,
+                    contentDescription = "" ,
+                    modifier = m
+                )
+            }
+
         }
 
     }
 
+    @Composable
+    fun TrialChip( modifier: Modifier = Modifier.padding(5.dp) , p: Player ){
+        var trialChipColor: ChipColors;
+        var border: ChipBorder;
+        if( !p.trial ){
+            trialChipColor = AssistChipDefaults.assistChipColors( containerColor = Color.Red, labelColor = Color.White );
+            border = AssistChipDefaults.assistChipBorder(borderColor = Color.Red)
+        } else {
+            trialChipColor = AssistChipDefaults.assistChipColors( containerColor = Color.Green, labelColor = Color.White );
+            border = AssistChipDefaults.assistChipBorder(borderColor = Color.Green)
+        }
+        var txt = if(p.trial) "AKTIV" else "TRIAL";
+        AssistChip( modifier=modifier, colors=trialChipColor, border = border, onClick = {  }, label = {Text(text = txt)} )
+    }
+
 }
 
+
+
+
+
+
+
+
+
+
+data class PlayerDetailClick( var back: ()->Unit , var navTo: (r: String)->Unit )
 
 
 @Composable
 @Preview
 fun PlayerDetailPagePreview(){
-    PlayerDetailPage(
-        p = Player("1234","Dominik","Christ" , LocalDate.of(1988,10,1) , "Bambini"),
-        listOf()
-    ) {}
+    var clicks = PlayerDetailClick({},{});
+    var player = Player("1234","Dominik","Christ" , LocalDate.of(1988,10,1) , "Bambini");
+    var items = PlayerViewModel.navItemsBy( player , clicks);
+    PlayerDetailPage().layout(
+        player,
+        clicks,
+        items = items,
+    )
 
 }
 

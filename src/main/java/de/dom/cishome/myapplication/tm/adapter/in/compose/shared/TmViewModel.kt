@@ -7,9 +7,8 @@ import de.dom.cishome.myapplication.tm.adapter.out.PlayerPersistenceAdapter
 import de.dom.cishome.myapplication.tm.adapter.out.PlayerRepository
 import de.dom.cishome.myapplication.tm.application.PlayerApplicationService
 
+@Deprecated(message = "Deprecated view model over factories")
 class TmViewModel(savedStateHandle: SavedStateHandle?) : ViewModel(){
 
-    var playerApp = PlayerApplicationService.inject();
-    var playerViewModel = PlayerViewModel( playerApp )
 
 }

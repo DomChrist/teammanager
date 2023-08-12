@@ -1,4 +1,4 @@
-package de.dom.cishome.myapplication.tm.application.domain.model
+package de.dom.cishome.myapplication.tm.application.domain.player.model
 
 import java.time.LocalDate
 import java.util.UUID

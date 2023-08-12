@@ -84,36 +84,42 @@ private fun content(model: TeamViewModel, nav: NavController, onSelect: (t: Team
                     Row{
                         Column {
                             Row{
-                                Card(modifier = Modifier.padding(35.dp)) {
-                                    Image(
-                                        contentScale = ContentScale.FillBounds,
-                                        painter = painterResource(R.drawable.trainer),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .heightIn(55.dp, 155.dp) , contentDescription = "")
-                                    Row( modifier = Modifier.fillMaxWidth() ){
-                                        Text(modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(15.dp) , text = "TRAINER" , textAlign = TextAlign.Center , fontSize = TextUnit(7f,
-                                            TextUnitType.Em))
+                                Column(Modifier.weight(1f)) {
+                                    Card(modifier = Modifier.padding(10.dp)) {
+                                        Image(
+                                            contentScale = ContentScale.FillBounds,
+                                            painter = painterResource(R.drawable.trainer),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .heightIn(55.dp, 155.dp) , contentDescription = "")
+                                        Row( modifier = Modifier.fillMaxWidth() ){
+                                            Text(modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(15.dp) , text = "TRAINER" , textAlign = TextAlign.Center , fontSize = TextUnit(7f,
+                                                TextUnitType.Em))
+                                        }
                                     }
                                 }
+                                Column(Modifier.weight(1f)) {
+                                    Card(modifier = Modifier.padding(10.dp)) {
+                                        Image(
+                                            contentScale = ContentScale.FillBounds,
+                                            painter = painterResource(R.drawable.teamplayer),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .heightIn(55.dp, 155.dp) , contentDescription = "")
+                                        Row( modifier = Modifier.fillMaxWidth() ){
+                                            Text(modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(15.dp) , text = "TEAMS" , textAlign = TextAlign.Center , fontSize = TextUnit(7f,
+                                                TextUnitType.Em))
+                                        }
+                                    }
+
+                                }
+
                             }
                             Row{
-                                Card(modifier = Modifier.padding(35.dp)) {
-                                    Image(
-                                        contentScale = ContentScale.FillBounds,
-                                        painter = painterResource(R.drawable.teamplayer),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .heightIn(55.dp, 155.dp) , contentDescription = "")
-                                    Row( modifier = Modifier.fillMaxWidth() ){
-                                        Text(modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(15.dp) , text = "TEAMS" , textAlign = TextAlign.Center , fontSize = TextUnit(7f,
-                                            TextUnitType.Em))
-                                    }
-                                }
                             }
 
                         }

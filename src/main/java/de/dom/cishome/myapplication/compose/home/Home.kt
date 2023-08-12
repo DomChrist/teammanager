@@ -4,16 +4,11 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -21,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -31,11 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -45,7 +35,8 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.shared.TmColors
-import de.dom.cishome.myapplication.config.security.SecurityAdapter
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.CommonComponents
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
 import okhttp3.OkHttpClient
 
 
@@ -86,12 +77,11 @@ fun NavigationBoxes( d: MenuData, nav: NavController ){
                         verticalArrangement = Arrangement.spacedBy(25.dp),
                         horizontalArrangement = Arrangement.spacedBy(25.dp) ){
                         items( d.list.size , key = {it}){
-                            menuCard(i = d.list[it] , nav)
+                            Tm.components().MenuCard(i = d.list[it], navigate = { nav.navigate(it) })
                         }
                     }
                 }
             }
-
         }
     }
 }
@@ -138,31 +128,6 @@ fun TmBottomBar( nav: NavController ){
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-fun menuCard( i: HomeScreenMenuItem, nav: NavController){
-
-    var navigate: ()->Unit = {
-        nav.navigate(i.dest )
-    }
-
-    ElevatedCard( onClick = {navigate()} )  {
-            Image(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(125.dp)
-                    .heightIn(55.dp, 125.dp),
-                contentScale = ContentScale.FillBounds,
-                painter = painterResource( i.res ),
-                contentDescription = "Fussballer"
-            )
-        Row(  Modifier.padding(15.dp) ){
-            Box( modifier=Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-                Text(text = i.name.uppercase(), textAlign = TextAlign.Center, fontWeight = FontWeight.Bold )
-            }
-        }
-    }
-}
 
 fun auth(){
     val build = OkHttpClient.Builder().build();
@@ -171,18 +136,16 @@ fun auth(){
 
 class MenuData {
 
-    var list = listOf<HomeScreenMenuItem>(
-        HomeScreenMenuItem("Verein" , "team", R.drawable.clublogo),
-        HomeScreenMenuItem("Player" , "player", R.drawable.club),
-        HomeScreenMenuItem("Turnier" , "competition", R.drawable.tuniert),
-        HomeScreenMenuItem("Mitglieder" , "membership", R.drawable.member),
-        HomeScreenMenuItem("Platz" , "platz", R.drawable.platz),
+    var list = listOf<CommonComponents.CardMenuItem>(
+        CommonComponents.CardMenuItem("Verein", "club", R.drawable.clublogo),
+        //CommonComponents.CardMenuItem("Player" , "player", R.drawable.club),
+        //CommonComponents.CardMenuItem("Turnier" , "competition", R.drawable.tuniert),
+        CommonComponents.CardMenuItem("Mein Team" , "myteam", R.drawable.member),
+        CommonComponents.CardMenuItem("Platz" , "platz", R.drawable.platz),
     )
 
 
 }
-
-data class HomeScreenMenuItem(var name: String, var dest: String, var res: Int)
 
 @Composable
 @Preview

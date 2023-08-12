@@ -1,4 +1,4 @@
-package de.dom.cishome.myapplication.tm.application.domain.service
+package de.dom.cishome.myapplication.tm.application.domain.player.service
 
 import java.time.LocalDate
 

@@ -32,169 +32,207 @@ import de.dom.cishome.myapplication.compose.player.pages.RowField
 import de.dom.cishome.myapplication.compose.shared.TmColors
 import java.time.LocalDate
 
-@Composable
-fun AddPlayerScreen(onPlayerAdded: (cmd: NewPlayerCommand) -> Unit, onBackClick: () -> Unit){
-    
-    var cmd: NewPlayerCommand = NewPlayerCommand(
-        remember { mutableStateOf(TextFieldValue()) },
-        remember { mutableStateOf(TextFieldValue()) },
-        remember { mutableStateOf(LocalDate.now()) },
-        remember { mutableStateOf(TextFieldValue()) },
-        remember { mutableStateOf(TextFieldValue()) },
-        remember { mutableStateOf(TextFieldValue()) },
-        remember { mutableStateOf(false) },
-        remember { mutableStateOf(TextFieldValue()) }
-    )
 
-    Scaffold(
-        topBar = { header(onBackClick) }
-    ) {
-        Box(modifier = Modifier.padding(it)){
-            Body(cmd,onPlayerAdded)
-        }
-    }
-}
+class AddPlayerScreen{
 
+    private var FIRST_STEP = 0;
+    private var MAX_STEP = 2;
 
-@Composable
-private fun Body(cmd: NewPlayerCommand, onPlayerAdded: (cmd: NewPlayerCommand) -> Unit) {
-    val colMod = Modifier
-        .fillMaxWidth()
-        .padding(10.dp)
-
-
-    when (cmd.step.value) {
-        0 -> {
-            step1(colMod = colMod, cmd = cmd)
-        }
-        1 -> {
-            step2(colMod = colMod, cmd = cmd)
-        }
-        2 -> {
-            step3(colMod = colMod, cmd = cmd, onPlayerAdded = onPlayerAdded)
-        }
-
-    }
-
-}
-
-@Composable
-private fun header(onBackClick: () -> Unit) {
-    var title = "Spieler anlegen"
-    var color = TmColors.App;
-    var defaults = TopAppBarDefaults.topAppBarColors( containerColor = color.primary )
-    TopAppBar(
-        title = { Text(title , color=color.primaryText) },
-        navigationIcon = {
-            IconButton(onClick = onBackClick ) {
-                Icon(Icons.Filled.ArrowBack, tint=color.primaryText, contentDescription = null)
-            }
-        },
-        actions = {
-            // RowScope here, so these icons will be placed horizontally
-            IconButton(onClick = onBackClick) {
-                Icon(Icons.Filled.Menu, tint=color.primaryText, contentDescription = "Localized description")
-            }
-        },
-        colors = defaults
-    )
-}
-
-@Composable
-private fun step1(colMod: Modifier, cmd: NewPlayerCommand) {
-    val app = TmColors.App;
-    val colors = ButtonDefaults.buttonColors( containerColor = app.primary , contentColor = app.primaryText )
-
-    Column(modifier = colMod) {
-        Row(){
-            Column() {
-                OutlinedCard(modifier = colMod) {
-                    Column(colMod){
-                        Text(text = "SPIELER")
-                        Divider()
-                        RowField(name = "Vorname", input = cmd.givenName)
-                        RowField(name = "Nachname", input = cmd.familyName)
-                        JahrGang(value = cmd.jahrgang)
-                    }
-                }
-                Row(){
-                    Button( colors = colors, modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp), onClick = { cmd.inc() }) {
-                        Text(text = "NEXT")
-                    }
-                }
-
+    @Composable
+    fun Screen(
+        onPlayerAdded: (cmd: NewPlayerCommand) -> Unit,
+        onBackClick: () -> Unit
+    ){
+        var cmd: NewPlayerCommand = NewPlayerCommand(
+            remember { mutableStateOf(TextFieldValue()) },
+            remember { mutableStateOf(TextFieldValue()) },
+            remember { mutableStateOf(LocalDate.now()) },
+            remember { mutableStateOf(TextFieldValue()) },
+            remember { mutableStateOf(TextFieldValue()) },
+            remember { mutableStateOf(TextFieldValue()) },
+            remember { mutableStateOf(false) },
+            remember { mutableStateOf(TextFieldValue()) }
+        )
+        Scaffold(
+            topBar = { header(onBackClick) },
+            bottomBar = { bottomBar( cmd , onPlayerAdded ) }
+        ) {
+            Box(modifier = Modifier.padding(it)){
+                Body(cmd,onPlayerAdded)
             }
         }
     }
-}
 
-@Composable
-private fun step2( colMod: Modifier, cmd: NewPlayerCommand ) {
-    val app = TmColors.App;
-    val colors = ButtonDefaults.buttonColors( containerColor = app.primary , contentColor = app.primaryText )
 
-    Column( colMod ) {
-        Row(){
-            Column() {
-                OutlinedCard(modifier = colMod) {
-                    Column( modifier = colMod) {
-                        RowField(name = "Vorname", input = cmd.contactGivenName)
-                        RowField(name = "Nachname", input = cmd.contactGivenFamilyName)
-                        RowField(name = "Handynummer", input = cmd.contactPhone)
-                    }
-                }
-                Row(){
-                    Button( colors=colors, modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp), onClick = { cmd.inc() }) {
-                        Text(text = "NEXT")
-                    }
-                }
+
+    @Composable
+    private fun Body(cmd: NewPlayerCommand, onPlayerAdded: (cmd: NewPlayerCommand) -> Unit) {
+        val colMod = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+
+
+        when (cmd.step.value) {
+            FIRST_STEP -> {
+                step1(colMod = colMod, cmd = cmd)
             }
+            1 -> {
+                step2(colMod = colMod, cmd = cmd)
+            }
+            MAX_STEP -> {
+                step3(colMod = colMod, cmd = cmd, onPlayerAdded = onPlayerAdded)
+            }
+
         }
+
     }
-}
 
-@Composable
-private fun step3( colMod: Modifier, cmd: NewPlayerCommand, onPlayerAdded: (cmd: NewPlayerCommand)->Unit ){
-    val app = TmColors.App;
-    val colorsBack = ButtonDefaults.buttonColors( containerColor = app.secondary , contentColor = app.secondaryText )
-    val colors = ButtonDefaults.buttonColors( containerColor = app.primary , contentColor = app.primaryText )
-
-    Column(colMod) {
-        Row() {
-            Column() {
-                OutlinedCard(modifier = colMod) {
-                    Column(modifier = colMod) {
-                        Row() {
-                            Checkbox(checked = cmd.trial.value, onCheckedChange = { cmd.trial.value = it })
-                            Text("Schnupperer")
-                        }
-                        Row() {
-                            RowField(name = "Team", input = cmd.team)
-                        }
-                    }
+    @Composable
+    private fun header(onBackClick: () -> Unit) {
+        var title = "Spieler anlegen"
+        var color = TmColors.App;
+        var defaults = TopAppBarDefaults.topAppBarColors( containerColor = color.primary )
+        TopAppBar(
+            title = { Text(title , color=color.primaryText) },
+            navigationIcon = {
+                IconButton(onClick = onBackClick ) {
+                    Icon(Icons.Filled.ArrowBack, tint=color.primaryText, contentDescription = null)
                 }
+            },
+            actions = {
+                // RowScope here, so these icons will be placed horizontally
+                IconButton(onClick = onBackClick) {
+                    Icon(Icons.Filled.Menu, tint=color.primaryText, contentDescription = "Localized description")
+                }
+            },
+            colors = defaults
+        )
+    }
+
+    @Composable
+    private fun bottomBar(cmd: NewPlayerCommand, onPlayerAdded:(c:NewPlayerCommand)->Unit) {
+        val app = TmColors.App;
+        val colors = ButtonDefaults.buttonColors( containerColor = app.primary , contentColor = app.primaryText )
+
+
+
+        if( cmd.step.value > FIRST_STEP ){
+            Button( colors = colors, modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp), onClick = { cmd.dec() }) {
+                Text(text = "BACK")
             }
         }
-        Row() {
+
+        if( cmd.step.value < MAX_STEP ){
+            Button( colors = colors, modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp), onClick = { cmd.inc() }) {
+                Text(text = "NEXT")
+            }
+        }
+
+        if( cmd.step.value == MAX_STEP){
             Button( colors=colors, modifier = Modifier
                 .fillMaxWidth()
                 .padding(5.dp), onClick = { onPlayerAdded(cmd) } ) {
                 Text(text = "SAVE")
             }
         }
+
     }
+
+    @Composable
+    private fun step1(colMod: Modifier, cmd: NewPlayerCommand) {
+        val app = TmColors.App;
+        val colors = ButtonDefaults.buttonColors( containerColor = app.primary , contentColor = app.primaryText )
+
+        Column(modifier = colMod) {
+            Row(){
+                Column() {
+                    OutlinedCard(modifier = colMod) {
+                        Column(colMod){
+                            Text(text = "SPIELER")
+                            Divider()
+                            RowField(name = "Vorname", input = cmd.givenName)
+                            RowField(name = "Nachname", input = cmd.familyName)
+                            JahrGang(value = cmd.jahrgang)
+                        }
+                    }
+                }
+            }
+            Row{
+            }
+        }
+    }
+
+    @Composable
+    private fun step2( colMod: Modifier, cmd: NewPlayerCommand ) {
+        val app = TmColors.App;
+        val colors = ButtonDefaults.buttonColors( containerColor = app.primary , contentColor = app.primaryText )
+
+        Column( colMod ) {
+            Row(){
+                Column() {
+                    OutlinedCard(modifier = colMod) {
+                        Column( modifier = colMod) {
+                            RowField(name = "Vorname", input = cmd.contactGivenName)
+                            RowField(name = "Nachname", input = cmd.contactGivenFamilyName)
+                            RowField(name = "Handynummer", input = cmd.contactPhone)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun step3( colMod: Modifier, cmd: NewPlayerCommand, onPlayerAdded: (cmd: NewPlayerCommand)->Unit ){
+        val app = TmColors.App;
+        val colorsBack = ButtonDefaults.buttonColors( containerColor = app.secondary , contentColor = app.secondaryText )
+        val colors = ButtonDefaults.buttonColors( containerColor = app.primary , contentColor = app.primaryText )
+
+        Column(colMod) {
+            Row() {
+                Column() {
+                    OutlinedCard(modifier = colMod) {
+                        Column(modifier = colMod) {
+                            Row() {
+                                Checkbox(checked = cmd.trial.value, onCheckedChange = { cmd.trial.value = it })
+                                Text("Schnupperer")
+                            }
+                            Row() {
+                                RowField(name = "Team", input = cmd.team)
+                            }
+                        }
+                    }
+                }
+            }
+            Row() {
+                Button( colors=colors, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp), onClick = { onPlayerAdded(cmd) } ) {
+                    Text(text = "SAVE")
+                }
+            }
+        }
+    }
+
 }
+
+
+
+
+
+
+
 
 
 
 @Composable
 @Preview
 fun AddPlayerScreenPreview(){
-    AddPlayerScreen({},{})
+    AddPlayerScreen().Screen({},{})
 }
 
 

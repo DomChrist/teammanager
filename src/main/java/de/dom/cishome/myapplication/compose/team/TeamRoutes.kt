@@ -14,13 +14,7 @@ import de.dom.cishome.myapplication.compose.team.model.TeamRepository
 import de.dom.cishome.myapplication.compose.team.model.TeamViewModel
 import de.dom.cishome.myapplication.compose.team.pages.TeamDetailPage
 import de.dom.cishome.myapplication.compose.team.pages.TeamWelcomePage
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.model.PlayerViewModel
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerOverviewClick
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerOverviewPage
-import de.dom.cishome.myapplication.tm.adapter.out.PlayerPersistenceAdapter
-import de.dom.cishome.myapplication.tm.adapter.out.PlayerRepository
 import de.dom.cishome.myapplication.tm.application.PlayerApplicationService
-import de.dom.cishome.myapplication.tm.application.domain.service.RegisterPlayerDomainService
 
 @ExperimentalUnitApi
 @ExperimentalPermissionsApi
@@ -34,6 +28,9 @@ fun NavGraphBuilder.teamGraph(navController: NavController){
         composable("start"){
             TeamWelcomePage( it, viewModel , navController )
         }
+        composable("start"){
+            TeamWelcomePage( it, viewModel , navController )
+        }
         composable("team/detail"){
             TeamDetailPage( it , navController, viewModel.selected!!, viewModel )
         }
@@ -41,7 +38,7 @@ fun NavGraphBuilder.teamGraph(navController: NavController){
             var id = navController.currentBackStackEntry?.arguments?.getString("team");
             var list = app.repo.players().filter { it.team == null || it.team.equals(id,true) }
 
-            PlayerOverviewPage( list , PlayerOverviewClick( {} , {navController.navigateUp()} , { navController.navigate("player/detail/${it.id}") }) )
+            //PlayerOverviewPage( list , PlayerOverviewClick( {} , {navController.navigateUp()} , { navController.navigate("player/detail/${it.id}") }) )
         }
 
 

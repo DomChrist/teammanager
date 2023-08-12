@@ -1,6 +1,6 @@
-package de.dom.cishome.myapplication.tm.application.domain.service
+package de.dom.cishome.myapplication.tm.application.domain.player.service
 
-import de.dom.cishome.myapplication.tm.application.domain.model.Player
+import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.port.`in`.CreatePlayerCommand
 import de.dom.cishome.myapplication.tm.application.port.`in`.RegisterPlayerUseCase
 import de.dom.cishome.myapplication.tm.application.port.out.CreatePlayerPort

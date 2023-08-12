@@ -56,9 +56,6 @@ class SecurityAdapter()  {
     companion object Factory {
 
 
-
-
-
         private val clientId = "account";
         private val realm = "CIS";
         fun startAuth(ctx: Context): Intent {

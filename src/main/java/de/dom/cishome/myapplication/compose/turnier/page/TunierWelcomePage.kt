@@ -19,9 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
@@ -216,7 +214,11 @@ private fun createDialog( onDismissRequest: ()->Unit , onCreate: (c: NewCompetit
                     }
                     Row( modifier = Modifier.padding(0.dp   ,5.dp)){
                         Button( modifier = Modifier.fillMaxWidth(), onClick = {
-                            var cmd = NewCompetitionCommand(club.value.text , location.value.text , date.value.text)
+                            var cmd = NewCompetitionCommand(
+                                club.value.text,
+                                location.value.text,
+                                date.value.text,
+                            )
                             onCreate(cmd)
                         }) {
                             Text(text = "ANLEGEN")

@@ -27,16 +27,6 @@ class AuthActivity: ComponentActivity() {
             fetchCode( this , state , success = {
                 this.startActivity(it)
             } )
-
-            /*
-            if ( state.value != null && state.value!!.isSuccessful() ){
-                val intent = Intent(this, MainActivity::class.java)
-                intent.putExtra("test", "value")
-                intent.putExtra("loggedin", true)
-                this.startActivity(intent)
-            }
-             */
-
         }
     }
 

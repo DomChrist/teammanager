@@ -2,8 +2,8 @@ package de.dom.cishome.myapplication.tm.application
 
 import de.dom.cishome.myapplication.tm.adapter.out.PlayerPersistenceAdapter
 import de.dom.cishome.myapplication.tm.adapter.out.PlayerRepository
-import de.dom.cishome.myapplication.tm.application.domain.service.NewPlayerDomainCommand
-import de.dom.cishome.myapplication.tm.application.domain.service.RegisterPlayerDomainService
+import de.dom.cishome.myapplication.tm.application.domain.player.service.NewPlayerDomainCommand
+import de.dom.cishome.myapplication.tm.application.domain.player.service.RegisterPlayerDomainService
 import de.dom.cishome.myapplication.tm.application.port.`in`.RegisterPlayerUseCase
 import de.dom.cishome.myapplication.tm.application.port.out.CreatePlayerPort
 
@@ -18,7 +18,8 @@ class PlayerApplicationService constructor(val repo: PlayerRepository,
             if( app == null ){
                 app = PlayerApplicationService(
                     PlayerRepository(),
-                    RegisterPlayerDomainService(adapter))
+                    RegisterPlayerDomainService(adapter)
+                )
             }
             return app!!;
         }

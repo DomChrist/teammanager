@@ -40,7 +40,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import de.dom.cishome.myapplication.compose.player.service.Player
 import de.dom.cishome.myapplication.compose.player.service.PlayerService
-import de.dom.cishome.myapplication.tm.application.domain.service.NewPlayerDomainCommand
+import de.dom.cishome.myapplication.tm.application.domain.player.service.NewPlayerDomainCommand
 import java.lang.Exception
 import java.time.Instant
 import java.time.LocalDate
@@ -223,6 +223,10 @@ data class NewPlayerCommand(
             this.trial.value,
             false
         )
+    }
+
+    fun dec() {
+        this.step.value = this.step.value.dec();
     }
 }
 
