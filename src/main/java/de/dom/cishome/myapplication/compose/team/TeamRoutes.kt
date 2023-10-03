@@ -14,7 +14,7 @@ import de.dom.cishome.myapplication.compose.team.model.TeamRepository
 import de.dom.cishome.myapplication.compose.team.model.TeamViewModel
 import de.dom.cishome.myapplication.compose.team.pages.TeamDetailPage
 import de.dom.cishome.myapplication.compose.team.pages.TeamWelcomePage
-import de.dom.cishome.myapplication.tm.application.PlayerApplicationService
+import de.dom.cishome.myapplication.tm.application.services.PlayerApplicationService
 
 @ExperimentalUnitApi
 @ExperimentalPermissionsApi

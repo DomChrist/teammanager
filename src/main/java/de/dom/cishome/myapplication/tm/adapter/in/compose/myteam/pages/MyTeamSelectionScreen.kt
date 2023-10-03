@@ -20,42 +20,55 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import de.dom.cishome.myapplication.compose.shared.TmColors
 import de.dom.cishome.myapplication.compose.team.model.Team
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.myteam.model.MyTeamListViewModel
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
+import de.dom.cishome.myapplication.ui.MainControl
 
-class MyTeamSelectionScreen(val teams: MutableState<List<Team>>) {
+class MyTeamSelectionScreen() {
 
-    @Composable fun Screen( clicks: ClickModel = ClickModel.default() ){
-        content( teams , clicks );
+    @Composable fun Screen(
+        model: MyTeamListViewModel = viewModel(factory=MyTeamListViewModel.Factory(LocalContext.current)),
+        clicks: MainControl ){
+
+        var teams = remember { mutableStateOf<List<Team>>( emptyList() ) }
+        model.teams.observeForever { teams.value = it }
+        if( teams.value.isEmpty() ){
+            Tm.components().Loading()
+        } else {
+            content( teams.value , clicks );
+        }
     }
 
 
-    @Composable private fun content(teams: MutableState<List<Team>>, clicks: ClickModel) {
+    @Composable internal fun content(teams: List<Team>, clicks: MainControl) {
         Scaffold(
-            topBar = { this.topBar(clicks) },
+            topBar = { Tm.components().TmTopBar( title = "TEAMS" , showBackArrow = true , clickModel = clicks) },
             bottomBar = { this.bottomBar() },
             content = { this.body(it , teams , clicks) }
             )
     }
 
     @Composable
-    private fun body(it: PaddingValues, teams: MutableState<List<Team>>, clicks: ClickModel) {
+    private fun body(it: PaddingValues, teams: List<Team>, clicks: MainControl) {
         Box( Modifier.padding(it)){
             LazyVerticalGrid(columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(15.dp),
                 verticalArrangement = Arrangement.spacedBy(25.dp),
                 horizontalArrangement = Arrangement.spacedBy(25.dp) ){
-                items( teams.value.size , key = {it}){
-                    var t = teams.value[ it ];
-                    TeamCard( t , clicks.select );
+                items( teams.size , key = {it}){
+                    var t = teams[ it ];
+                    TeamCard( t , select = { clicks.navTo( "myteams/teams/team?team=${it.label}" ) } );
                 }
             }
         }
@@ -64,14 +77,16 @@ class MyTeamSelectionScreen(val teams: MutableState<List<Team>>) {
 
     @Composable private fun TeamCard(t: Team, select: (t: Team) -> Unit) {
         Card(Modifier.clickable { select(t) }  ) {
-            Row(modifier=Modifier.padding(15.dp).fillMaxWidth()){
+            Row(modifier= Modifier
+                .padding(15.dp)
+                .fillMaxWidth()){
                 Text( modifier=Modifier.fillMaxWidth(), text = t.label , textAlign = TextAlign.Center , fontWeight = FontWeight.Bold)
             }
         }
     }
 
     @Composable
-    private fun topBar(clicks: ClickModel) {
+    private fun topBar(clicks: MainControl) {
         var color = TmColors.App;
         var defaults = TopAppBarDefaults.topAppBarColors( containerColor = color.primary )
         TopAppBar(
@@ -98,7 +113,7 @@ class MyTeamSelectionScreen(val teams: MutableState<List<Team>>) {
     data class ClickModel( val back:()->Unit , val navTo: (r: String) -> Unit,
         val select: (t: Team)->Unit ){
         companion object Factory{
-            fun default(): ClickModel = ClickModel({},{},{})
+            fun default( m: MainControl , select: (t:Team)->Unit ): ClickModel = ClickModel({ m.back() },{m.navTo(it)},select)
         }
     }
 
@@ -119,6 +134,6 @@ fun MyTeamSelectionScreenPreview(){
         )
     }
 
-    MyTeamSelectionScreen( state ).Screen();
+    MyTeamSelectionScreen().content(teams = state.value, clicks = MainControl({},{},{}))
 
 }

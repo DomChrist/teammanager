@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import de.dom.cishome.myapplication.compose.player.pages.NewPlayerCommand
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerListFilter
-import de.dom.cishome.myapplication.tm.application.PlayerApplicationService
+import de.dom.cishome.myapplication.tm.application.services.PlayerApplicationService
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 
 class AllPlayersViewModel(
@@ -33,7 +33,8 @@ class AllPlayersViewModel(
 
     fun handle( cmd: NewPlayerCommand) {
         var domainCommand = cmd.toDomainCommand();
-        var p = this.app.newPlayer( domainCommand );
+        var contactDomainCommand = cmd.toContactDomainCommand();
+        var p = this.app.newPlayer( domainCommand , contactDomainCommand );
         this.selectedTeams.postValue( this.selectedTeams!!.value!!.plus( p!! ) as List<Player> )
     }
 

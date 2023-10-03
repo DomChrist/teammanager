@@ -1,4 +1,4 @@
-package de.dom.cishome.myapplication.compose.turnier.model
+package de.dom.cishome.myapplication.tm.application.domain.competition
 
 import de.dom.cishome.myapplication.tm.application.domain.shared.TeamReference
 

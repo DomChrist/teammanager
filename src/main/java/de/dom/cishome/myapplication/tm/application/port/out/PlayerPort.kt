@@ -9,13 +9,21 @@ interface CreatePlayerPort{
 
 }
 
+interface UpdatePlayerPort{
+
+    fun update( p: Player )
+
+    fun delete( id: String )
+
+}
+
 interface PlayerReaderPort{
 
     fun readAll( onSuccess: (list: List<Player>) -> Unit );
 
     fun readAll( f: PlayerFilter , onSuccess: (list: List<Player>)->Unit );
 
-    fun byId( onSuccess: (list: Player) -> Unit )
+    fun byId( id: String, onSuccess: (list: Player) -> Unit )
 
 }
 

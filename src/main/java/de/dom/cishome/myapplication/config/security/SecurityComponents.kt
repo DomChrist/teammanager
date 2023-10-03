@@ -27,7 +27,7 @@ class SecurityComponents {
     companion object Components{
 
         @Composable
-        fun LoginScreen(onLogin: () -> Unit) {
+        fun LoginScreen(onLogin: () -> Unit , onLocal: ()->Unit ) {
             val color = TmColors.App;
             Box( Modifier.fillMaxSize() ){
                 Column {
@@ -40,6 +40,14 @@ class SecurityComponents {
                             var d = ButtonDefaults.buttonColors( color.primary , color.primaryText )
                             Button(modifier=Modifier.fillMaxWidth() , colors=d, onClick = onLogin ) {
                                 Text("LOGIN")
+                            }
+                        }
+                    }
+                    Row(Modifier.fillMaxWidth()) {
+                        Card(Modifier.padding(25.dp , 1.dp)){
+                            var d = ButtonDefaults.buttonColors( color.secondary , color.secondaryText )
+                            Button(modifier=Modifier.fillMaxWidth() , colors=d, onClick = onLocal ) {
+                                Text("LOCAL")
                             }
                         }
                     }
@@ -60,6 +68,6 @@ class SecurityComponents {
 @Preview
 private fun Preview(){
 
-    SecurityComponents.LoginScreen( {} );
+    SecurityComponents.LoginScreen( {} , {} );
 
 }

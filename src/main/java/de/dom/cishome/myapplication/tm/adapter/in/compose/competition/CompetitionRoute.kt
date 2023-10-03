@@ -12,7 +12,7 @@ import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model.Co
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.pages.CompetitionDetailPage
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.pages.CompetitionPage
 import de.dom.cishome.myapplication.tm.adapter.out.competition.CompetitionRepository
-import de.dom.cishome.myapplication.tm.application.CompetitionApplicationService
+import de.dom.cishome.myapplication.tm.application.services.CompetitionApplicationService
 
 @ExperimentalUnitApi
 @ExperimentalPermissionsApi

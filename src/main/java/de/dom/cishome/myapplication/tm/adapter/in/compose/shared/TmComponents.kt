@@ -4,14 +4,20 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
+import androidx.compose.material.DrawerState
+import androidx.compose.material.ModalDrawer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.DrawerValue
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,7 +26,9 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +40,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.dom.cishome.myapplication.compose.shared.MyColorTheme
 import de.dom.cishome.myapplication.compose.shared.TmColors
+import de.dom.cishome.myapplication.ui.MainControl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class Tm {
 
@@ -88,6 +99,40 @@ class CommonComponents{
             },
             actions = {
                 // RowScope here, so these icons will be placed horizontally
+            }
+        )
+    }
+
+    @Composable fun TmTopBar( title: String = "Team Manager",
+                              theme: MyColorTheme = TmColors.App,
+                              showBackArrow: Boolean = false,
+                              clickModel: MainControl = MainControl({},{},{})  ){
+
+        val colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = theme.primary,
+            titleContentColor = theme.secondary
+        )
+
+        TopAppBar(
+            title = { Text(text=title , color = Color.White) },
+            colors = colors,
+            navigationIcon = {
+                if( showBackArrow ){
+                    IconButton(onClick = clickModel.back ) {
+                        Icon(  imageVector = Icons.Filled.ArrowBack, tint= Color.White, contentDescription = null)
+                    }
+                } else {
+                    IconButton(onClick = { clickModel.showMainMenu(true) } ) {
+                        Icon(  imageVector = Icons.Filled.Menu, tint= Color.White, contentDescription = null)
+                    }
+                }
+            },
+            actions = {
+                if( showBackArrow ){
+                    IconButton(onClick = {clickModel.showMainMenu(true)} ) {
+                        Icon(  imageVector = Icons.Filled.Menu, tint= Color.White, contentDescription = null)
+                    }
+                }
             }
         )
     }

@@ -1,8 +1,6 @@
 package de.dom.cishome.myapplication.tm.application.port.out
 
 import androidx.compose.runtime.MutableState
-import de.dom.cishome.myapplication.compose.team.model.Team
-import de.dom.cishome.myapplication.compose.turnier.model.CompetitionModel
 import de.dom.cishome.myapplication.tm.application.domain.competition.TeamCompetitionModel
 
 interface CompetitionReader{

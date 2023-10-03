@@ -100,7 +100,7 @@ private fun content( d: MenuData, nav: NavController ){
 }
 
 @Composable
-fun TmBottomBar( nav: NavController ){
+fun TmBottomBar(nav: NavController){
 
     var ctx = LocalContext.current;
 
@@ -152,6 +152,5 @@ class MenuData {
 fun HomePreview(){
     var d = MenuData();
     var nav = rememberNavController();
-
     content(d,nav = nav)
 }

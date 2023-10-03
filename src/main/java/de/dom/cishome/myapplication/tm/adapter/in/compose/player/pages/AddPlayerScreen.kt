@@ -1,5 +1,6 @@
 package de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,9 +24,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.player.pages.JahrGang
 import de.dom.cishome.myapplication.compose.player.pages.NewPlayerCommand
 import de.dom.cishome.myapplication.compose.player.pages.RowField
@@ -71,19 +75,33 @@ class AddPlayerScreen{
             .fillMaxWidth()
             .padding(10.dp)
 
+        Box(){
+            Box(){
+                Image( modifier=Modifier.fillMaxWidth(), contentScale=ContentScale.FillWidth,
+                    painter = painterResource(id = R.drawable.teamplayer), contentDescription = "")
+            }
+        }
 
-        when (cmd.step.value) {
-            FIRST_STEP -> {
-                step1(colMod = colMod, cmd = cmd)
-            }
-            1 -> {
-                step2(colMod = colMod, cmd = cmd)
-            }
-            MAX_STEP -> {
-                step3(colMod = colMod, cmd = cmd, onPlayerAdded = onPlayerAdded)
-            }
+        Column {
+                when (cmd.step.value) {
+                    FIRST_STEP -> {
+                        step1(colMod = colMod, cmd = cmd)
+                    }
+                    1 -> {
+                        step2(colMod = colMod, cmd = cmd)
+                    }
+                    MAX_STEP -> {
+                        step3(colMod = colMod, cmd = cmd, onPlayerAdded = onPlayerAdded)
+                    }
+
+                }
+                Row{
+                    bottomBar(cmd = cmd, onPlayerAdded = onPlayerAdded)
+                }
 
         }
+
+
 
     }
 
@@ -115,40 +133,52 @@ class AddPlayerScreen{
         val colors = ButtonDefaults.buttonColors( containerColor = app.primary , contentColor = app.primaryText )
 
 
+        Column {
+            if( cmd.step.value > FIRST_STEP ){
+                Row(){
+                    Button( colors = colors, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp), onClick = { cmd.dec() }) {
+                        Text(text = "BACK")
+                    }
+                }
+            }
+            if( cmd.step.value < MAX_STEP ){
+                Row(){
+                    Button( colors = colors, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp), onClick = { cmd.inc() }) {
+                        Text(text = "NEXT")
+                    }
+                }
+            }
 
-        if( cmd.step.value > FIRST_STEP ){
-            Button( colors = colors, modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp), onClick = { cmd.dec() }) {
-                Text(text = "BACK")
+            if( cmd.step.value == MAX_STEP){
+                Row(){
+                    Button( colors=colors, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp), onClick = { onPlayerAdded(cmd) } ) {
+                        Text(text = "SAVE")
+                    }
+                }
             }
         }
 
-        if( cmd.step.value < MAX_STEP ){
-            Button( colors = colors, modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp), onClick = { cmd.inc() }) {
-                Text(text = "NEXT")
-            }
-        }
 
-        if( cmd.step.value == MAX_STEP){
-            Button( colors=colors, modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp), onClick = { onPlayerAdded(cmd) } ) {
-                Text(text = "SAVE")
-            }
-        }
+
+
 
     }
 
     @Composable
-    private fun step1(colMod: Modifier, cmd: NewPlayerCommand) {
+    private fun step1(
+        colMod: Modifier,
+        cmd: NewPlayerCommand
+    ) {
         val app = TmColors.App;
         val colors = ButtonDefaults.buttonColors( containerColor = app.primary , contentColor = app.primaryText )
 
         Column(modifier = colMod) {
-            Row(){
                 Column() {
                     OutlinedCard(modifier = colMod) {
                         Column(colMod){
@@ -160,9 +190,6 @@ class AddPlayerScreen{
                         }
                     }
                 }
-            }
-            Row{
-            }
         }
     }
 

@@ -1,4 +1,4 @@
-package de.dom.cishome.myapplication.compose.turnier.component
+package de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.components
 
 import android.content.Context
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,7 +7,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember

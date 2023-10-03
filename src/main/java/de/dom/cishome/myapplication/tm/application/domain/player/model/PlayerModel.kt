@@ -6,7 +6,14 @@ import java.util.UUID
 class PlayerModel {
 }
 
-data class Player(val id: String = UUID.randomUUID().toString(), val givenName: String, val familyName: String, val dateOfBirth: LocalDate, val team: String, val trial: Boolean = false, val member: Boolean = true){
+data class Player(val id: String = UUID.randomUUID().toString(),
+                  val givenName: String,
+                  val familyName: String,
+                  val dateOfBirth: LocalDate,
+                  val team: String,
+                  var contactPersons: List<String> = emptyList(),
+                  val trial: Boolean = false,
+                  val member: Boolean = true){
 
     fun key(): String {
         return "${givenName.lowercase()}_${familyName.lowercase()}"

@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="server">http://macbook-pro-von-dominik.local</string>
+    <integer name="server_port">8071</integer>
     <bool name="auth_required">true</bool>
 </resources>

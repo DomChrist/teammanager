@@ -8,4 +8,6 @@ interface RegisterPlayerUseCase{
 
     fun registerPlayer( cmd: NewPlayerDomainCommand): Player
 
+    fun addContactPerson( playerId: String , contactId: String )
+
 }

@@ -1,4 +1,4 @@
-package de.dom.cishome.myapplication.tm.application
+package de.dom.cishome.myapplication.tm.application.services
 
 import de.dom.cishome.myapplication.compose.team.model.Team
 

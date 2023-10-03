@@ -56,6 +56,8 @@ import de.dom.cishome.myapplication.compose.player.component.PlayerDetailNavigat
 import de.dom.cishome.myapplication.compose.player.pages.PlayerNavItem
 import de.dom.cishome.myapplication.compose.shared.PlayerFileHelper
 import de.dom.cishome.myapplication.compose.shared.TmColors
+import de.dom.cishome.myapplication.compose.shared.TmDevice
+import de.dom.cishome.myapplication.compose.shared.TmDeviceShare
 import de.dom.cishome.myapplication.compose.shared.shotPlayerImage
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.model.PlayerViewModel
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
@@ -80,7 +82,7 @@ class PlayerDetailPage {
 
         if( playerState.value != null ){
             var player = playerState.value!!;
-            val navItems = PlayerViewModel.navItemsBy(player, clicks)
+            val navItems = model.navItemsBy(player, clicks)
             layout( player , clicks, navItems )
         } else {
             Tm.components().Loading()
@@ -119,6 +121,7 @@ class PlayerDetailPage {
 
     @Composable
     private fun PlayerDetail(p: Player, items: List<PlayerNavItem>) {
+        var ctx = LocalContext.current;
         var COLORS = TmColors.App;
         var assistBox = Modifier
             .fillMaxWidth()
@@ -133,7 +136,7 @@ class PlayerDetailPage {
                 }
                 Column(modifier = Modifier.weight(5f)) {}
                 Column(modifier = Modifier.weight(2f)) {
-                    AssistChip( modifier = assistBox, onClick = {  }, label = { Icon(Icons.Filled.Share,"") } )
+                    AssistChip( modifier = assistBox, onClick = { TmDeviceShare.share(ctx,p.fullName()) }, label = { Icon(Icons.Filled.Share,"") } )
                 }
             }
 
@@ -160,6 +163,7 @@ class PlayerDetailPage {
 
     @Composable
     private fun PlayerBox(p: Player, items: List<PlayerNavItem>){
+        var playerState = remember{ mutableStateOf(p) }
         var max = Modifier.fillMaxWidth();
         var colors = AssistChipDefaults.assistChipColors(containerColor = TmColors.App.primary , labelColor = TmColors.App.primaryText)
         var assistBox = Modifier
@@ -175,7 +179,7 @@ class PlayerDetailPage {
                 }
                 Column(Modifier.weight(5f)) {
                     Row(modifier = Modifier.padding(0.dp , 25.dp)){
-                        PlayerImage(p = p)
+                        PlayerImage(p = p , onNewImage = {playerState.value = p})
                     }
                 }
                 Column(Modifier.weight(2f)) {
@@ -263,7 +267,7 @@ class PlayerDetailPage {
     }
 
     @Composable
-    fun PlayerImage( p: Player? ){
+    fun PlayerImage( p: Player? , onNewImage: ()->Unit = {} ){
         var id = p?.id ?: "unkown";
         var c = LocalContext.current;
 
@@ -289,7 +293,7 @@ class PlayerDetailPage {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(color = Color.White.copy(alpha = 0.6f))
-                .clickable { shotPlayerImage(p!!.id, c) }
+                .clickable { shotPlayerImage(p!!.id, c , onNewImage) }
                 .padding(5.dp)) {
 
             if( playerImage ){
@@ -317,14 +321,14 @@ class PlayerDetailPage {
     fun TrialChip( modifier: Modifier = Modifier.padding(5.dp) , p: Player ){
         var trialChipColor: ChipColors;
         var border: ChipBorder;
-        if( !p.trial ){
+        if( p.trial ){
             trialChipColor = AssistChipDefaults.assistChipColors( containerColor = Color.Red, labelColor = Color.White );
             border = AssistChipDefaults.assistChipBorder(borderColor = Color.Red)
         } else {
             trialChipColor = AssistChipDefaults.assistChipColors( containerColor = Color.Green, labelColor = Color.White );
             border = AssistChipDefaults.assistChipBorder(borderColor = Color.Green)
         }
-        var txt = if(p.trial) "AKTIV" else "TRIAL";
+        var txt = if(p.trial) "TRIAL" else "AKTIV";
         AssistChip( modifier=modifier, colors=trialChipColor, border = border, onClick = {  }, label = {Text(text = txt)} )
     }
 
@@ -347,7 +351,14 @@ data class PlayerDetailClick( var back: ()->Unit , var navTo: (r: String)->Unit 
 fun PlayerDetailPagePreview(){
     var clicks = PlayerDetailClick({},{});
     var player = Player("1234","Dominik","Christ" , LocalDate.of(1988,10,1) , "Bambini");
-    var items = PlayerViewModel.navItemsBy( player , clicks);
+    var items = listOf<PlayerNavItem>(
+        PlayerNavItem("Ansprechpartner" , "" , click =  {
+            clicks.navTo("player/detail/${player.id}/contacts")
+        }),
+        PlayerNavItem("Ansprechpartner" , "" , click =  {
+            clicks.navTo("player/detail/${player.id}/contacts")
+        })
+    )
     PlayerDetailPage().layout(
         player,
         clicks,

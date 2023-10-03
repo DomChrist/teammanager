@@ -41,6 +41,7 @@ import androidx.navigation.compose.rememberNavController
 import de.dom.cishome.myapplication.compose.player.service.Player
 import de.dom.cishome.myapplication.compose.player.service.PlayerService
 import de.dom.cishome.myapplication.tm.application.domain.player.service.NewPlayerDomainCommand
+import de.dom.cishome.myapplication.tm.application.port.`in`.contactperson.CreateContactPersonCommand
 import java.lang.Exception
 import java.time.Instant
 import java.time.LocalDate
@@ -223,6 +224,12 @@ data class NewPlayerCommand(
             this.trial.value,
             false
         )
+    }
+
+    fun toContactDomainCommand(): CreateContactPersonCommand {
+        return CreateContactPersonCommand( forPlayer = "" , givenName = this.givenName.value.text ,
+            familyName = this.familyName.value.text,
+            contactNumber = this.contactPhone.value.text)
     }
 
     fun dec() {

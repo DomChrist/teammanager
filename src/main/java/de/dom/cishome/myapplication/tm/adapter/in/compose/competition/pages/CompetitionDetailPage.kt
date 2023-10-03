@@ -36,8 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.home.TmComponents
 import de.dom.cishome.myapplication.compose.shared.TmColors
-import de.dom.cishome.myapplication.compose.team.model.Team
-import de.dom.cishome.myapplication.compose.turnier.component.CompetitionTimer
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.components.CompetitionTimer
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model.CompetitionDetailViewModel
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model.CompetitionDetailViewModelFactory
 import de.dom.cishome.myapplication.tm.application.domain.competition.Club

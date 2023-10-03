@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import de.dom.cishome.myapplication.compose.shared.GsonUtils
 import de.dom.cishome.myapplication.compose.shared.PlayerFileHelper
-import de.dom.cishome.myapplication.compose.turnier.model.CompetitionModel
 import de.dom.cishome.myapplication.tm.application.domain.competition.TeamCompetitionModel
 import de.dom.cishome.myapplication.tm.application.port.out.CompetitionReader
 import de.dom.cishome.myapplication.tm.application.port.out.CompetitionWriter

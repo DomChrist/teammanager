@@ -22,41 +22,60 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.shared.MyColorTheme
 import de.dom.cishome.myapplication.compose.shared.TmColors
 import de.dom.cishome.myapplication.compose.team.model.Team
 import de.dom.cishome.myapplication.compose.team.pages.NavBarItem
 import de.dom.cishome.myapplication.compose.team.shared.TeamTheme
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.myteam.model.MyTeamViewModel
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.CommonComponents
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
 
 
-class MyTeamWelcomePage( val selectedTeam: Team) {
+class MyTeamWelcomePage(val teamId: String? ) {
 
-    private val modules = listOf<CommonComponents.CardMenuItem>(
-        CommonComponents.CardMenuItem( "Spieler" , "players?team=${selectedTeam.label}" , R.drawable.teamplayer ),
-        CommonComponents.CardMenuItem( "Trainer" , "trainer" , R.drawable.trainer ),
-        CommonComponents.CardMenuItem( "Turniere" , "competition/team/${selectedTeam.id}" , R.drawable.tuniert ),
-        CommonComponents.CardMenuItem( "Platz" , "platz" , R.drawable.platz )
-    )
+
+    private var modules = listOf<CommonComponents.CardMenuItem>()
 
     fun colorScheme(): MyColorTheme = TeamTheme().color;
     fun theme(): TeamTheme = TeamTheme();
 
     @Composable
-    fun WelcomeScreen( clicks: MyTeamWelcomePage.Clicks ){
-        this.content( clicks )
+    fun WelcomeScreen(
+        model: MyTeamViewModel = viewModel(factory=MyTeamViewModel.MyTeamViewFactory(LocalContext.current,teamId)),
+        clicks: MyTeamWelcomePage.Clicks ){
+
+        var selectedTeam = remember{ mutableStateOf<Team?>(null) };
+        model.selectedTeam.observeForever { selectedTeam.value = it }
+
+        if( selectedTeam.value != null ){
+            this.modules = modules( selectedTeam.value!! )
+            this.content( selectedTeam.value!! , this.modules, clicks )
+        }
+    }
+
+    private fun modules( t: Team ): List<CommonComponents.CardMenuItem> {
+        return listOf<CommonComponents.CardMenuItem>(
+            CommonComponents.CardMenuItem( "Spieler" , "players?team=${t.label}" , R.drawable.teamplayer ),
+            CommonComponents.CardMenuItem( "Trainer" , "trainer" , R.drawable.trainer ),
+            CommonComponents.CardMenuItem( "Turniere" , "competition/team/${t.id}" , R.drawable.tuniert ),
+            CommonComponents.CardMenuItem( "Platz" , "platz" , R.drawable.platz )
+        );
     }
 
     @Composable
-    private fun content( clicks: MyTeamWelcomePage.Clicks  ) {
-        Scaffold(topBar = { this.topBar(title = this.selectedTeam.label, clicks = clicks, color = colorScheme()) },
+    internal fun content(selectedTeam: Team, modules: List<CommonComponents.CardMenuItem> , clicks: Clicks) {
+        this.modules = modules;
+        Scaffold(topBar = { this.topBar(title = selectedTeam.label, clicks = clicks, color = colorScheme()) },
             bottomBar = { footer(theme = theme()) }) {
             Box(Modifier.padding(it)) {
                 Box(modifier = Modifier.align(Alignment.TopCenter)) {
@@ -141,7 +160,12 @@ class MyTeamWelcomePage( val selectedTeam: Team) {
 @Composable
 @Preview
 fun MyTeamWelcomeScreenPreview(){
-
-    MyTeamWelcomePage( Team("1234" , "Bambini") ).WelcomeScreen( MyTeamWelcomePage.Clicks({},{}) );
+    var modules = listOf<CommonComponents.CardMenuItem>(
+        CommonComponents.CardMenuItem( "Spieler" , "players?team" , R.drawable.teamplayer ),
+        CommonComponents.CardMenuItem( "Trainer" , "trainer" , R.drawable.trainer ),
+        CommonComponents.CardMenuItem( "Turniere" , "competition/team/" , R.drawable.tuniert ),
+        CommonComponents.CardMenuItem( "Platz" , "platz" , R.drawable.platz )
+    )
+    MyTeamWelcomePage("1234").content( Team("1234" , "Bambini") , modules, MyTeamWelcomePage.Clicks({},{}) );
 
 }

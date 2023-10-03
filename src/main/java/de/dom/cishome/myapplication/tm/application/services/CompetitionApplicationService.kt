@@ -1,8 +1,8 @@
-package de.dom.cishome.myapplication.tm.application
+package de.dom.cishome.myapplication.tm.application.services
 
-import de.dom.cishome.myapplication.compose.turnier.model.NewCompetitionCommand
 import de.dom.cishome.myapplication.tm.application.domain.competition.Club
 import de.dom.cishome.myapplication.tm.application.domain.competition.CompetitionDate
+import de.dom.cishome.myapplication.tm.application.domain.competition.NewCompetitionCommand
 import de.dom.cishome.myapplication.tm.application.domain.competition.TeamCompetitionModel
 import de.dom.cishome.myapplication.tm.application.port.out.CompetitionReader
 import de.dom.cishome.myapplication.tm.application.port.out.CompetitionWriter

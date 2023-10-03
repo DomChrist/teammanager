@@ -20,7 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import de.dom.cishome.myapplication.compose.team.model.CreateTeamCommand
-import de.dom.cishome.myapplication.compose.turnier.model.NewCompetitionCommand
 
 class TeamComponents {
 

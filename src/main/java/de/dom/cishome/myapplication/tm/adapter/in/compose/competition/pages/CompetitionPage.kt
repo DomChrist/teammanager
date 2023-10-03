@@ -46,7 +46,7 @@ import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.componen
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model.CompetitionViewClick
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model.CompetitionsViewModel
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model.preview.PreviewCompetitionRepository
-import de.dom.cishome.myapplication.tm.application.CompetitionApplicationService
+import de.dom.cishome.myapplication.tm.application.services.CompetitionApplicationService
 import de.dom.cishome.myapplication.tm.application.domain.competition.TeamCompetitionModel
 import de.dom.cishome.myapplication.tm.application.domain.shared.TeamReference
 

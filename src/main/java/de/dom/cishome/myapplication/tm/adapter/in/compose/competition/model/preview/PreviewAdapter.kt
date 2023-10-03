@@ -1,7 +1,6 @@
 package de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model.preview
 
 import androidx.compose.runtime.MutableState
-import de.dom.cishome.myapplication.compose.turnier.model.CompetitionModel
 import de.dom.cishome.myapplication.tm.application.domain.competition.Club
 import de.dom.cishome.myapplication.tm.application.domain.competition.CompetitionDate
 import de.dom.cishome.myapplication.tm.application.domain.competition.TeamCompetitionModel

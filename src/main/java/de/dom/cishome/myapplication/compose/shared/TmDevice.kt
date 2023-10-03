@@ -17,6 +17,17 @@ import java.util.Objects
 class TmDevice {
 
     companion object Vibrate{
+
+        fun Call( ctx: Context, text: String ){
+            val sendIntent: Intent = Intent().apply {
+                action = Intent.ACTION_DIAL
+                putExtra(Intent.EXTRA_TEXT, text)
+                type = "text/plain"
+            }
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            ctx.startActivity( shareIntent );
+        }
+
         fun vibrate( ctx: Context ){
             var v = ctx.getSystemService( Context.VIBRATOR_MANAGER_SERVICE ) as VibratorManager
             var c = CombinedVibration.startParallel().addVibrator( 0 , VibrationEffect.createOneShot(500 ,255) ).combine()
@@ -45,7 +56,7 @@ class TmDevice {
 }
 
 
-fun shotPlayerImage( id: String, context: Context) {
+fun shotPlayerImage( id: String, context: Context, onNewImage:()->Unit={}) {
     val values = ContentValues()
 
     values.put(MediaStore.Images.Media.TITLE, "New Picture")
@@ -70,6 +81,7 @@ fun shotPlayerImage( id: String, context: Context) {
     var a = context.startActivity(cameraIntent);
 
     Log.i("image" , a.toString());
+    onNewImage();
 }
 
 fun share( ctx: Context, text: String ){

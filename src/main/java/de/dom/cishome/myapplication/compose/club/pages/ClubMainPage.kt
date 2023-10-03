@@ -27,15 +27,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.club.model.ClubViewModel
-import de.dom.cishome.myapplication.compose.home.TmComponents
-import de.dom.cishome.myapplication.compose.player.component.topBar
 import de.dom.cishome.myapplication.compose.shared.TmColors
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.CommonComponents
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
-import de.dom.cishome.myapplication.tm.application.TeamApplicationService
+import de.dom.cishome.myapplication.tm.application.services.TeamApplicationService
+import de.dom.cishome.myapplication.ui.MainControl
 
 
-class ClubMainPage( var model: ClubViewModel){
+class ClubMainPage( var mainControl: MainControl, var model: ClubViewModel){
 
 
 
@@ -48,7 +47,7 @@ class ClubMainPage( var model: ClubViewModel){
     private fun Layout(){
 
         Scaffold(
-            topBar = { topBar() },
+            topBar = { Tm.components().TmTopBar( title="VEREIN", clickModel = mainControl , showBackArrow = true ) },
             bottomBar = { bottomBar() },
             content = {this.content(it)}
             )
@@ -74,7 +73,9 @@ class ClubMainPage( var model: ClubViewModel){
                 }
 
                 Row( Modifier.fillMaxWidth()){
-                    Button( modifier=Modifier.fillMaxWidth().padding(15.dp), onClick = { model.createAllTeams() }) {
+                    Button( modifier= Modifier
+                        .fillMaxWidth()
+                        .padding(15.dp), onClick = { model.createAllTeams() }) {
                         Text("Teams anlegen")
                     }
                 }
@@ -150,5 +151,5 @@ class ClubMainPage( var model: ClubViewModel){
 @Composable
 @Preview
 fun ClubMainPagePreview(){
-    ClubMainPage(ClubViewModel(TeamApplicationService())).Screen();
+    ClubMainPage( MainControl({},{},{}) , ClubViewModel(TeamApplicationService())).Screen();
 }

@@ -3,8 +3,8 @@ package de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import de.dom.cishome.myapplication.compose.turnier.model.NewCompetitionCommand
-import de.dom.cishome.myapplication.tm.application.CompetitionApplicationService
+import de.dom.cishome.myapplication.tm.application.services.CompetitionApplicationService
+import de.dom.cishome.myapplication.tm.application.domain.competition.NewCompetitionCommand
 import de.dom.cishome.myapplication.tm.application.port.out.CompetitionReader
 
 class CompetitionsViewModel(
