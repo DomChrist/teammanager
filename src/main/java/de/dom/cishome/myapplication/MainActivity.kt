@@ -32,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.ExperimentalUnitApi
@@ -43,6 +44,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import de.dom.cishome.myapplication.compose.club.clubGraph
 import de.dom.cishome.myapplication.compose.shared.TmColors
 import de.dom.cishome.myapplication.compose.team.teamGraph
+import de.dom.cishome.myapplication.config.CDI
+import de.dom.cishome.myapplication.config.ConfigProperties
 import de.dom.cishome.myapplication.config.security.SecurityAdapter
 import de.dom.cishome.myapplication.config.security.SecurityComponents
 import de.dom.cishome.myapplication.config.security.SecurityIdentity
@@ -52,6 +55,7 @@ import de.dom.cishome.myapplication.tm.adapter.`in`.compose.launch.pages.HomeScr
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.myteam.myTeamGraph
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.playerGraph
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.CommonComponents
+import de.dom.cishome.myapplication.tm.application.services.TeamApplicationService
 import de.dom.cishome.myapplication.ui.MainControl
 import de.dom.cishome.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.CoroutineScope
@@ -60,10 +64,13 @@ import kotlinx.coroutines.launch
 @ExperimentalUnitApi
 @ExperimentalPermissionsApi
 class MainActivity : ComponentActivity() {
+
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            CDI.initialize( LocalContext.current )
+            ConfigProperties.initialize( LocalContext.current )
             var identity: SecurityIdentity? = loggedInIdentity( intent );
             if( (identity != null ) || !booleanResource(id = R.bool.auth_required)){
                 MyAppSurface(activity = this , identity!!)
@@ -90,8 +97,9 @@ class MainActivity : ComponentActivity() {
 
     @Composable private fun LoginScreen(){
         SecurityComponents.LoginScreen(
-            onLogin = {this.startActivity(SecurityAdapter.startAuth(this.applicationContext))},
+            onLogin = { ConfigProperties.AUTH_MODE = ConfigProperties.AuthMode.REMOTE; this.startActivity(SecurityAdapter.startAuth(this.applicationContext))},
             onLocal = {
+                ConfigProperties.AUTH_MODE = ConfigProperties.AuthMode.LOCAL;
                 val intent = Intent(this, MainActivity::class.java)
                 intent.putExtra("test", "value")
                 intent.putExtra("loggedin", true)
@@ -204,7 +212,7 @@ class MainActivity : ComponentActivity() {
 
             competitionGraph(navController)
 
-            teamGraph(navController)
+            teamGraph(navController , TeamApplicationService.inject())
 
             myTeamGraph( nav = navController , mainControl = mainControl )
         }

@@ -49,11 +49,11 @@ import de.dom.cishome.myapplication.ui.MainControl
 class HomeScreen {
 
     val list = listOf<CommonComponents.CardMenuItem>(
-        CommonComponents.CardMenuItem("Verein", "club", R.drawable.clublogo),
+        //CommonComponents.CardMenuItem("Verein", "club", R.drawable.clublogo),
         //CommonComponents.CardMenuItem("Player" , "player", R.drawable.club),
         //CommonComponents.CardMenuItem("Turnier" , "competition", R.drawable.tuniert),
         CommonComponents.CardMenuItem("Mein Team" , "myteam", R.drawable.member),
-        CommonComponents.CardMenuItem("Platz" , "platz", R.drawable.platz),
+        //CommonComponents.CardMenuItem("Platz" , "platz", R.drawable.platz),
     )
 
     @Composable

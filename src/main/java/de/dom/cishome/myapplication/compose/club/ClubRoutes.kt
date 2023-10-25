@@ -20,8 +20,7 @@ import de.dom.cishome.myapplication.ui.MainControl
 @ExperimentalPermissionsApi
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
-fun NavGraphBuilder.clubGraph(navController: NavController, mainControl: MainControl){
-    var app = PlayerApplicationService.inject();
+fun NavGraphBuilder.clubGraph(navController: NavController, mainControl: MainControl ){
     var teamApp = TeamApplicationService();
     var viewModel = TeamViewModel( TeamRepository() );
     var club = ClubViewModel( teamApp );

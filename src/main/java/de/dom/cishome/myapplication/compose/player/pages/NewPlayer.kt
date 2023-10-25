@@ -60,7 +60,6 @@ fun NewPlayerPage( playerService: PlayerService, nav: NavController){
         remember { mutableStateOf(LocalDate.now()) },
         remember { mutableStateOf(TextFieldValue()) },
         remember { mutableStateOf(TextFieldValue()) },
-        remember { mutableStateOf(TextFieldValue()) },
         remember { mutableStateOf(false) },
         remember { mutableStateOf(TextFieldValue()) }
         )
@@ -117,8 +116,7 @@ private fun Body( playerService: PlayerService, nav: NavController, cmd: NewPlay
                     Column() {
                         OutlinedCard(modifier = colMod) {
                             Column( modifier = colMod) {
-                                RowField(name = "Vorname", input = cmd.contactGivenName)
-                                RowField(name = "Nachname", input = cmd.contactGivenFamilyName)
+                                RowField(name = "Description", input = cmd.contactDescription)
                                 RowField(name = "Handynummer", input = cmd.contactPhone)
                             }
                         }
@@ -203,8 +201,7 @@ data class NewPlayerCommand(
     var givenName: MutableState<TextFieldValue>,
     var familyName: MutableState<TextFieldValue>,
     var jahrgang: MutableState<LocalDate>,
-    var contactGivenName: MutableState<TextFieldValue>,
-    var contactGivenFamilyName: MutableState<TextFieldValue>,
+    var contactDescription: MutableState<TextFieldValue>,
     var contactPhone: MutableState<TextFieldValue>,
     var trial: MutableState<Boolean>,
     var team: MutableState<TextFieldValue>,

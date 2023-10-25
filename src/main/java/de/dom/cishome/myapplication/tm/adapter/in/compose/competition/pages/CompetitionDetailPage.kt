@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,7 +46,7 @@ import de.dom.cishome.myapplication.tm.application.domain.competition.TeamCompet
 import de.dom.cishome.myapplication.tm.application.domain.shared.TeamReference
 
 
-class CompetitionDetailPage {
+class CompetitionDetailPage( val clicks: CompetitionDetailPage.GameDetailClicks ) {
 
 
     @Composable fun Screen(
@@ -92,7 +93,9 @@ class CompetitionDetailPage {
                             }
                             Column( Modifier.weight(1f) ) {
                                 Box( Modifier.padding(15.dp)) {
-                                    CompetitionTimer()
+                                    Button( onClick = clicks.onGameRoute , colors = c.secondaryButtonColor() ){
+                                        Text("SPIEL STARTEN")
+                                    }
                                 }
                             }
                         }
@@ -199,10 +202,14 @@ class CompetitionDetailPage {
             colors = defaults
         )
     }
+
+
+    data class GameDetailClicks( val onGameRoute: () -> Unit ){}
+
 }
 
 @Composable
 @Preview
 private fun CompetitionDetailPagePreview(){
-    CompetitionDetailPage().Layout( TeamCompetitionModel("1234" , Club("Kettig","Kunstrasen") , CompetitionDate("26.04.2023" , ""), TeamReference("","")) )
+    CompetitionDetailPage( CompetitionDetailPage.GameDetailClicks({}) ).Layout( TeamCompetitionModel("1234" , Club("Kettig","Kunstrasen") , CompetitionDate("26.04.2023" , ""), TeamReference("","")) )
 }

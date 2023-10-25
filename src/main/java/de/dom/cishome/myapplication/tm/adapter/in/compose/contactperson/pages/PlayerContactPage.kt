@@ -1,47 +1,29 @@
 package de.dom.cishome.myapplication.tm.adapter.`in`.compose.contactperson.pages
 
-import android.graphics.drawable.shapes.Shape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.dom.cishome.myapplication.compose.shared.MyColorTheme
@@ -50,9 +32,9 @@ import de.dom.cishome.myapplication.tm.adapter.`in`.compose.contactperson.compon
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.contactperson.model.PlayerContactsViewModel
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
 import de.dom.cishome.myapplication.tm.application.domain.contactperson.model.ContactModel
+import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayerContactDetail
 import de.dom.cishome.myapplication.tm.application.services.ContactPersonApplicationService
 import de.dom.cishome.myapplication.ui.MainControl
-import kotlin.contracts.contract
 
 class PlayerContactPage( val app: ContactPersonApplicationService = ContactPersonApplicationService.inject() ) {
 
@@ -96,7 +78,7 @@ class PlayerContactPage( val app: ContactPersonApplicationService = ContactPerso
     @Composable
     private fun ContactPersonCard(contactModel: ContactModel) {
         var showBottomSheet = remember{ mutableStateOf(false) }
-        ContactModalSheet(model = contactModel, state = showBottomSheet)
+        ContactModalSheet(model = PlayerContactDetail("1234",contactModel.full(),contactModel.phone), state = showBottomSheet)
 
         Box(Modifier.padding(8.dp)){
             Row( modifier = Modifier

@@ -20,27 +20,19 @@ class TeamPersistenceAdapter(val ctx: Context) : TeamReaderPort , TeamWriterPort
     private var module = "team";
 
     private val all: MutableList<Team> = mutableListOf();
+    var team: Team? = null;
 
     override fun findAll(onSuccess: (t: List<Team>) -> Unit) {
         // routing
         Thread(){
-            remoteFindAll( onSuccess = { this.all.clear(); this.all.addAll(it); onSuccess(it) } ){
-                Log.e("service call" , "service not reachable")
-                localFindAll(onSuccess)
-            }
+            this.all.clear();
+            this.all.addAll(remoteFindAll().map { it.toModel() } )
+            onSuccess( this.all );
         }.start()
     }
 
-    private fun remoteFindAll(onSuccess: (t: List<Team>) -> Unit , onError: ()->Unit) {
-        TeamRestApi( ctx = ctx )
-            .findAll(
-                onSuccess = {
-                    onSuccess(it.map { it.toModel() }.toList())
-                },
-                onError = {
-                    onError()
-                }
-            )
+    private fun remoteFindAll(): List<TeamResponse> {
+        return TeamRestApi().findAll()
     }
 
     private fun localFindAll(onSuccess: (t: List<Team>) -> Unit) {
@@ -68,10 +60,18 @@ class TeamPersistenceAdapter(val ctx: Context) : TeamReaderPort , TeamWriterPort
             return;
         }
 
+
+
         var f = File( file.moduleDir( module , "list/${id}" ) , "team.json");
         if( f == null || !f.exists() ) return;
         var json = file.read( f );
         onSuccess(GsonUtils.mapper().fromJson( json , Team::class.java ));
+    }
+
+    private fun remoteFindById( id: String , onSuccess: (t: TeamResponse) -> Unit ){
+        Thread{
+            TeamRestApi().findById( id , onSuccess , {} )
+        }.start();
     }
 
     override fun persist(t: Team, onSuccess: () -> Unit) {

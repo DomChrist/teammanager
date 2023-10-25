@@ -1,13 +1,17 @@
 package de.dom.cishome.myapplication.tm.adapter.out
 
+import android.content.Context
 import android.util.Log
 import de.dom.cishome.myapplication.compose.shared.GsonUtils
 import de.dom.cishome.myapplication.compose.shared.PlayerFileHelper
+import de.dom.cishome.myapplication.config.CDI
+import de.dom.cishome.myapplication.tm.adapter.out.player.PlayerRestCall
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.port.out.CreatePlayerPort
 import java.io.FileNotFoundException
 import java.lang.Exception
 
+@Deprecated(message = "Use the specific repository")
 class PlayerRepository() {
 
     private val helper = PlayerFileHelper();
@@ -33,6 +37,16 @@ class PlayerRepository() {
             }?.filterNotNull() ?: listOf()
 
         return list;
+    }
+
+    fun players( teamId: String, onSuccess: (p: List<Player>) -> Unit ){
+        Thread{
+        }.start()
+    }
+
+    fun player( playerId: String  , onSuccess: (p: Player) -> Unit ){
+        Thread{
+        }.start()
     }
 
     fun asyncPlayers( onSuccess: (p: List<Player>) -> Unit ){

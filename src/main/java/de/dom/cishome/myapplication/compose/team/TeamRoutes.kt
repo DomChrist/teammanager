@@ -15,13 +15,13 @@ import de.dom.cishome.myapplication.compose.team.model.TeamViewModel
 import de.dom.cishome.myapplication.compose.team.pages.TeamDetailPage
 import de.dom.cishome.myapplication.compose.team.pages.TeamWelcomePage
 import de.dom.cishome.myapplication.tm.application.services.PlayerApplicationService
+import de.dom.cishome.myapplication.tm.application.services.TeamApplicationService
 
 @ExperimentalUnitApi
 @ExperimentalPermissionsApi
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
-fun NavGraphBuilder.teamGraph(navController: NavController){
-    var app = PlayerApplicationService.inject();
+fun NavGraphBuilder.teamGraph(navController: NavController, teamApp: TeamApplicationService?){
     var viewModel = TeamViewModel( TeamRepository() );
 
     navigation( startDestination = "start" , route = "team"){
@@ -36,8 +36,6 @@ fun NavGraphBuilder.teamGraph(navController: NavController){
         }
         composable("team/{team}/detail/player" ,  arguments = listOf( navArgument("team"){type= NavType.StringType})  ){
             var id = navController.currentBackStackEntry?.arguments?.getString("team");
-            var list = app.repo.players().filter { it.team == null || it.team.equals(id,true) }
-
             //PlayerOverviewPage( list , PlayerOverviewClick( {} , {navController.navigateUp()} , { navController.navigate("player/detail/${it.id}") }) )
         }
 

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AssistChip
@@ -51,15 +50,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import de.dom.cishome.myapplication.R
-import de.dom.cishome.myapplication.compose.home.TmComponents
 import de.dom.cishome.myapplication.compose.player.component.PlayerDetailNavigation
 import de.dom.cishome.myapplication.compose.player.pages.PlayerNavItem
 import de.dom.cishome.myapplication.compose.shared.PlayerFileHelper
 import de.dom.cishome.myapplication.compose.shared.TmColors
-import de.dom.cishome.myapplication.compose.shared.TmDevice
 import de.dom.cishome.myapplication.compose.shared.TmDeviceShare
 import de.dom.cishome.myapplication.compose.shared.shotPlayerImage
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.model.PlayerViewModel
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.DefaultClickModel
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import java.io.File
@@ -67,37 +65,50 @@ import java.lang.Exception
 import java.time.LocalDate
 
 
-class PlayerDetailPage {
+class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
 
+    private var model: PlayerViewModel? = null;
 
+    private var onTrialParticipationUpdate: ()->Unit = {}
 
     @Composable
     fun Screen(
         playerId: String,
-        clicks: PlayerDetailClick,
-        model: PlayerViewModel = viewModel( factory = PlayerViewModel.PlayerViewFactory(playerId) )
+        model: PlayerViewModel = viewModel( factory = PlayerViewModel.PlayerViewFactory(playerId,
+            LocalContext.current ) )
     ){
+        this.model = model;
         var playerState = remember{ mutableStateOf<Player?>(null) }
-        model.player.observeForever { playerState.value = it }
+        this.model.let {
+            it!!.player.observeForever { playerState.value = it }
+        }
 
         if( playerState.value != null ){
             var player = playerState.value!!;
-            val navItems = model.navItemsBy(player, clicks)
-            layout( player , clicks, navItems )
+            val clickModel = this.model!!.clickModel(defaultClickModel);
+
+            val navItems = model.navItemsBy(player, clickModel)
+            layout( player , clickModel, navItems )
         } else {
             Tm.components().Loading()
         }
     }
 
+    private fun initClickModel(counter: MutableState<Int>) {
+        val clickModel = this.model!!.clickModel(defaultClickModel);
+        onTrialParticipationUpdate = {
+            this.model?.trialParticipation( counter.value )
+        }
+    }
+
 
     @Composable
-    fun layout( p: Player, clicks: PlayerDetailClick , items: List<PlayerNavItem> ){
+    fun layout( p: Player , clicks: PlayerDetailClick, items: List<PlayerNavItem> ){
+        var counter = remember{ mutableStateOf(p.state.trial?.trialCount ?: 0) }
 
-        var COMP = TmComponents();
-        var counter = remember{ mutableStateOf(0) }
+        initClickModel( counter )
 
-
-        if( p.trial ){
+        if( p.isTrial() ){
             BottomSheetScaffold( sheetContent = {
                 BottomSheet( counter )
             }) {
@@ -221,6 +232,7 @@ class PlayerDetailPage {
 
     @Composable
     private fun BottomSheet(counter: MutableState<Int>) {
+
         Box( modifier = Modifier.padding(0.dp , 15.dp) ) {
             Row(){
                 Column() {
@@ -228,8 +240,8 @@ class PlayerDetailPage {
                         Column(modifier = Modifier.weight(1f)) {
                             FilledIconButton( modifier = Modifier
                                 .padding(5.dp, 0.dp)
-                                .fillMaxWidth(), onClick = { counter.value = counter.value.inc() }) {
-                                Icon( Icons.Filled.Clear , "" )
+                                .fillMaxWidth(), onClick = { counter.value = counter.value.dec() }) {
+                                Text(" - ")
                             }
                         }
                         Column(modifier = Modifier.weight(3f)) {
@@ -242,20 +254,20 @@ class PlayerDetailPage {
                         Column(modifier = Modifier.weight(1f)) {
                             FilledIconButton( modifier = Modifier
                                 .padding(5.dp, 0.dp)
-                                .fillMaxWidth(), onClick = { counter.value = counter.value.dec() }) {
-                                Icon(Icons.Filled.Clear , "")
+                                .fillMaxWidth(), onClick = { counter.value = counter.value.inc() }) {
+                                Text(" + ")
                             }
                         }
                     }
                     Row( modifier = Modifier.padding( 15.dp , 15.dp) ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Button( modifier = Modifier.fillMaxWidth(), onClick = { /*TODO*/ }) {
-                                Text("BEENDEN")
+                                Text("ABBRUCH")
                             }
                         }
                         Column(modifier = Modifier.weight(1f)) {
-                            Button( modifier = Modifier.fillMaxWidth(), onClick = { /*TODO*/ }) {
-                                Text("ZURÜCKSETZEN")
+                            Button( modifier = Modifier.fillMaxWidth(), onClick = onTrialParticipationUpdate ) {
+                                Text("SPEICHERN")
                             }
                         }
                     }
@@ -293,7 +305,7 @@ class PlayerDetailPage {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(color = Color.White.copy(alpha = 0.6f))
-                .clickable { shotPlayerImage(p!!.id, c , onNewImage) }
+                .clickable { shotPlayerImage(p!!.id, c, onNewImage) }
                 .padding(5.dp)) {
 
             if( playerImage ){
@@ -321,14 +333,14 @@ class PlayerDetailPage {
     fun TrialChip( modifier: Modifier = Modifier.padding(5.dp) , p: Player ){
         var trialChipColor: ChipColors;
         var border: ChipBorder;
-        if( p.trial ){
+        if( p.isTrial() ){
             trialChipColor = AssistChipDefaults.assistChipColors( containerColor = Color.Red, labelColor = Color.White );
             border = AssistChipDefaults.assistChipBorder(borderColor = Color.Red)
         } else {
             trialChipColor = AssistChipDefaults.assistChipColors( containerColor = Color.Green, labelColor = Color.White );
             border = AssistChipDefaults.assistChipBorder(borderColor = Color.Green)
         }
-        var txt = if(p.trial) "TRIAL" else "AKTIV";
+        var txt = if(p.isTrial()) "TRIAL" else "AKTIV";
         AssistChip( modifier=modifier, colors=trialChipColor, border = border, onClick = {  }, label = {Text(text = txt)} )
     }
 
@@ -343,7 +355,11 @@ class PlayerDetailPage {
 
 
 
-data class PlayerDetailClick( var back: ()->Unit , var navTo: (r: String)->Unit )
+data class PlayerDetailClick( var back: ()->Unit ,
+                              var navTo: (r: String)->Unit,
+                              var onActivate: ( p: Player )->Unit = {},
+                              var onTrialParticipation: () -> Unit = {}
+);
 
 
 @Composable
@@ -359,7 +375,7 @@ fun PlayerDetailPagePreview(){
             clicks.navTo("player/detail/${player.id}/contacts")
         })
     )
-    PlayerDetailPage().layout(
+    PlayerDetailPage( DefaultClickModel() ).layout(
         player,
         clicks,
         items = items,

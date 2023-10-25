@@ -1,9 +1,7 @@
 package de.dom.cishome.myapplication.tm.application.services
 
+import android.content.Context
 import de.dom.cishome.myapplication.tm.adapter.out.PlayerPersistenceAdapter
-import de.dom.cishome.myapplication.tm.adapter.out.PlayerRepository
-import de.dom.cishome.myapplication.tm.adapter.out.contactperson.ContactpersonPersistenceAdapter
-import de.dom.cishome.myapplication.tm.application.domain.contactperson.service.ContactPlayerDomainService
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.domain.player.service.NewPlayerDomainCommand
 import de.dom.cishome.myapplication.tm.application.domain.player.service.PlayerDomainService
@@ -11,36 +9,20 @@ import de.dom.cishome.myapplication.tm.application.domain.player.service.Registe
 import de.dom.cishome.myapplication.tm.application.port.`in`.DeletePlayerUseCase
 import de.dom.cishome.myapplication.tm.application.port.`in`.RegisterPlayerUseCase
 import de.dom.cishome.myapplication.tm.application.port.`in`.contactperson.CreateContactPersonCommand
-import de.dom.cishome.myapplication.tm.application.port.`in`.contactperson.RegisterContactPersonUseCase
 
-class PlayerApplicationService constructor(val repo: PlayerRepository,
-                                           private val registerContactPerson: RegisterContactPersonUseCase,
-                                           private val deletePlayerUseCase: DeletePlayerUseCase,
-                                           private val register: RegisterPlayerUseCase) {
-    companion object Factory {
+class PlayerApplicationService constructor(val ctx: Context ) {
 
-        private var app: PlayerApplicationService? = null;
-        fun inject(): PlayerApplicationService {
-            var adapter = PlayerPersistenceAdapter.inject();
-            var contactAdapter = ContactpersonPersistenceAdapter();
-            if( app == null ){
-                var repo = PlayerRepository()
-                app = PlayerApplicationService(
-                    repo,
-                    ContactPlayerDomainService( contactAdapter , contactAdapter ),
-                    PlayerDomainService.inject(),
-                    RegisterPlayerDomainService(  adapter, adapter)
-                )
-            }
-            return app!!;
-        }
+    private val adapter: PlayerPersistenceAdapter = PlayerPersistenceAdapter();
+    private val deletePlayerUseCase: DeletePlayerUseCase;
+    private val registerUseCase: RegisterPlayerUseCase;
+
+    init {
+        this.deletePlayerUseCase = PlayerDomainService( ctx , adapter )
+        this.registerUseCase = RegisterPlayerDomainService( adapter , adapter )
     }
 
     fun newPlayer(cmd: NewPlayerDomainCommand , cp: CreateContactPersonCommand):Player {
-        var player = this.register.registerPlayer( cmd );
-        var contact = this.registerContactPerson.register( player.id , cp );
-        this.register.addContactPerson(player.id , contact.id );
-
+        var player = this.registerUseCase.registerPlayer( cmd );
         return player;
     }
 
@@ -48,8 +30,9 @@ class PlayerApplicationService constructor(val repo: PlayerRepository,
         this.deletePlayerUseCase.delete(p);
     }
 
-    fun trialParticipation( pid: String ){
-
+    fun trialParticipation(player: Player, count: Int){
+        PlayerPersistenceAdapter().trialParticipation( count, player.id )
+        player.state.trial?.trialCount = player.state.trial?.trialCount?.inc() ?: 0
     }
 
     fun trialEnd( pid: String, takeover: Boolean ){

@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -45,7 +46,8 @@ class AddPlayerScreen{
     @Composable
     fun Screen(
         onPlayerAdded: (cmd: NewPlayerCommand) -> Unit,
-        onBackClick: () -> Unit
+        onBackClick: () -> Unit,
+        startStep: Int = FIRST_STEP
     ){
         var cmd: NewPlayerCommand = NewPlayerCommand(
             remember { mutableStateOf(TextFieldValue()) },
@@ -53,9 +55,9 @@ class AddPlayerScreen{
             remember { mutableStateOf(LocalDate.now()) },
             remember { mutableStateOf(TextFieldValue()) },
             remember { mutableStateOf(TextFieldValue()) },
-            remember { mutableStateOf(TextFieldValue()) },
             remember { mutableStateOf(false) },
-            remember { mutableStateOf(TextFieldValue()) }
+            remember { mutableStateOf(TextFieldValue()) },
+            remember { mutableStateOf(startStep) }
         )
         Scaffold(
             topBar = { header(onBackClick) },
@@ -131,6 +133,7 @@ class AddPlayerScreen{
     private fun bottomBar(cmd: NewPlayerCommand, onPlayerAdded:(c:NewPlayerCommand)->Unit) {
         val app = TmColors.App;
         val colors = ButtonDefaults.buttonColors( containerColor = app.primary , contentColor = app.primaryText )
+        val saveColors = ButtonDefaults.buttonColors( containerColor = Color.Green , contentColor = Color.Black )
 
 
         Column {
@@ -155,7 +158,7 @@ class AddPlayerScreen{
 
             if( cmd.step.value == MAX_STEP){
                 Row(){
-                    Button( colors=colors, modifier = Modifier
+                    Button( colors=saveColors, modifier = Modifier
                         .fillMaxWidth()
                         .padding(5.dp), onClick = { onPlayerAdded(cmd) } ) {
                         Text(text = "SAVE")
@@ -203,8 +206,7 @@ class AddPlayerScreen{
                 Column() {
                     OutlinedCard(modifier = colMod) {
                         Column( modifier = colMod) {
-                            RowField(name = "Vorname", input = cmd.contactGivenName)
-                            RowField(name = "Nachname", input = cmd.contactGivenFamilyName)
+                            RowField(name = "Beschreibung Kontaktdaten", input = cmd.contactDescription)
                             RowField(name = "Handynummer", input = cmd.contactPhone)
                         }
                     }
@@ -214,7 +216,7 @@ class AddPlayerScreen{
     }
 
     @Composable
-    private fun step3( colMod: Modifier, cmd: NewPlayerCommand, onPlayerAdded: (cmd: NewPlayerCommand)->Unit ){
+    fun step3( colMod: Modifier, cmd: NewPlayerCommand, onPlayerAdded: (cmd: NewPlayerCommand)->Unit ){
         val app = TmColors.App;
         val colorsBack = ButtonDefaults.buttonColors( containerColor = app.secondary , contentColor = app.secondaryText )
         val colors = ButtonDefaults.buttonColors( containerColor = app.primary , contentColor = app.primaryText )
@@ -226,15 +228,18 @@ class AddPlayerScreen{
                         Column(modifier = colMod) {
                             Row() {
                                 Checkbox(checked = cmd.trial.value, onCheckedChange = { cmd.trial.value = it })
-                                Text("Schnupperer")
+                                Text( modifier = Modifier.padding( 2.dp , 14.dp), text = "Schnupperer")
                             }
+                            /*
                             Row() {
                                 RowField(name = "Team", input = cmd.team)
                             }
+                             */
                         }
                     }
                 }
             }
+            /*
             Row() {
                 Button( colors=colors, modifier = Modifier
                     .fillMaxWidth()
@@ -242,6 +247,7 @@ class AddPlayerScreen{
                     Text(text = "SAVE")
                 }
             }
+             */
         }
     }
 
@@ -259,7 +265,7 @@ class AddPlayerScreen{
 @Composable
 @Preview
 fun AddPlayerScreenPreview(){
-    AddPlayerScreen().Screen({},{})
+    AddPlayerScreen().Screen(onPlayerAdded = {}, onBackClick = { /*TODO*/ } , startStep = 2)
 }
 
 

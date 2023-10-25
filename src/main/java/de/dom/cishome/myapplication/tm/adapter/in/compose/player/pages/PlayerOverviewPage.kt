@@ -61,7 +61,7 @@ class PlayerOverviewPage{
     @Composable
     fun Screen(
         filter: PlayerListFilter = PlayerListFilter.none(),
-        overview: AllPlayersViewModel = viewModel( factory = AllPlayersViewModel.ViewFactory(filter) ),
+        overview: AllPlayersViewModel = viewModel( factory = AllPlayersViewModel.ViewFactory( LocalContext.current, filter) ),
         clicks: PlayerOverviewClick ){
 
         var players = remember{ mutableStateOf<List<Player>>(emptyList()) };
@@ -171,7 +171,7 @@ class PlayerOverviewPage{
             when (tabIndex.value) {
                 0 -> {
                     LazyColumn(modifier = Modifier.padding(PaddingValues(5.dp , 25.dp))){
-                        items( players.filter { !it.trial }.sortedBy { it.givenName } ){
+                        items( players.filter { !it.isTrial() }.sortedBy { it.givenName } ){
 
                             if( it.familyName.uppercase().toCharArray()[0] == playerCurrentLetter ){
                                 PlayerItemView( it , onPlayerSelect )
@@ -191,7 +191,7 @@ class PlayerOverviewPage{
                 }
                 1 -> {
                     LazyColumn(modifier = Modifier.padding(PaddingValues(5.dp , 25.dp))){
-                        items( players.filter { it.trial } ){
+                        items( players.filter { it.isTrial() } ){
                             PlayerItemView( it , onPlayerSelect )
                         }
                     }

@@ -29,10 +29,11 @@ import androidx.compose.ui.unit.dp
 import de.dom.cishome.myapplication.compose.shared.TmDevice
 import de.dom.cishome.myapplication.compose.shared.TmDeviceShare
 import de.dom.cishome.myapplication.tm.application.domain.contactperson.model.ContactModel
+import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayerContactDetail
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ContactModalSheet(model: ContactModel, state: MutableState<Boolean>){
+fun ContactModalSheet(model: PlayerContactDetail, state: MutableState<Boolean>){
     if( state.value ){
         ModalBottomSheet( onDismissRequest = { state.value = false }) {
             ModalBottomSheetLayout(sheetContent = {}) {
@@ -43,7 +44,7 @@ fun ContactModalSheet(model: ContactModel, state: MutableState<Boolean>){
 }
 
 @Composable
-inline fun content( model: ContactModel ){
+inline fun content(model: PlayerContactDetail){
     var ctx = LocalContext.current;
     Box( modifier=Modifier.fillMaxWidth() ){
         Column(Modifier.fillMaxWidth()) {
@@ -51,7 +52,7 @@ inline fun content( model: ContactModel ){
                 Modifier
                     .fillMaxWidth()
                     .padding(0.dp, 45.dp)){
-                Text(text="${model.full()}" , modifier=Modifier.fillMaxWidth(), fontSize= TextUnit(7f,
+                Text(text="${model.description}" , modifier=Modifier.fillMaxWidth(), fontSize= TextUnit(7f,
                     TextUnitType.Em),
                     textAlign = TextAlign.Center)
                 Divider()
@@ -59,11 +60,11 @@ inline fun content( model: ContactModel ){
             Row(Modifier.fillMaxWidth()){
                 Column(Modifier.weight(1f) , horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Filled.Call,
-                        modifier = Modifier.size(30.dp).clickable { TmDevice.Call(ctx,model.phone) },
+                        modifier = Modifier.size(30.dp).clickable { TmDevice.Call(ctx,model.value) },
                         contentDescription = "")
                 }
                 Column( Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Filled.Email, modifier = Modifier.size(30.dp).clickable { TmDeviceShare.share(ctx,model.phone) }
+                    Icon(Icons.Filled.Email, modifier = Modifier.size(30.dp).clickable { TmDeviceShare.share(ctx,model.value) }
                         , contentDescription = "")
                 }
                 Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -78,5 +79,5 @@ inline fun content( model: ContactModel ){
 @Preview
 @Composable
 private fun Preview(){
-    content(model = ContactModel("1235","Dominik","Christ" , "0178523762"))
+    content(model = PlayerContactDetail("1235","Dominik" , "0178523762"))
 }

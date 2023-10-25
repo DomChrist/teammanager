@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.dom.cishome.myapplication.compose.shared.MyColorTheme
 import de.dom.cishome.myapplication.compose.shared.TmColors
@@ -179,5 +180,11 @@ class CommonComponents{
 
 
 
-open class DefaultClickModel( val navBack: ()->Unit , val navTo: (route:String) -> Unit );
+open class DefaultClickModel( val navBack: ()->Unit = {} , val navTo: (route:String) -> Unit = {} );
 
+
+@Composable
+@Preview
+private fun preview(){
+    Tm.components().Loading();
+}

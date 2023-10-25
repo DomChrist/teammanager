@@ -10,6 +10,7 @@ import de.dom.cishome.myapplication.tm.adapter.out.myteam.TeamPersistenceAdapter
 class MyTeamListViewModel( ctx: Context ) : ViewModel() {
 
     var teams: MutableLiveData<List<Team>> = MutableLiveData();
+    var selected: MutableLiveData<Team?> = MutableLiveData();
 
     class Factory(val ctx: Context) : ViewModelProvider.Factory{
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -20,6 +21,8 @@ class MyTeamListViewModel( ctx: Context ) : ViewModel() {
     init {
         TeamPersistenceAdapter(ctx).findAll() { teams.postValue(it) }
     }
+
+
 
 
 

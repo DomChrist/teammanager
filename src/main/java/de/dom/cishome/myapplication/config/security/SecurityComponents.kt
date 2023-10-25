@@ -31,7 +31,7 @@ class SecurityComponents {
             val color = TmColors.App;
             Box( Modifier.fillMaxSize() ){
                 Column {
-                    Row(Modifier.fillMaxWidth().padding(15.dp)) {
+                    Row(Modifier.fillMaxWidth().padding(15.dp , 55.dp)) {
                         Image( modifier=Modifier.fillMaxWidth().width(200.dp).height(220.dp),
                             painter = painterResource(id = R.drawable.clublogo), contentDescription = "")
                     }

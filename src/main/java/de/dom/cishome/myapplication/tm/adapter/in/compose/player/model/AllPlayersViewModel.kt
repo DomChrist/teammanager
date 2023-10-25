@@ -1,16 +1,24 @@
 package de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.model
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import de.dom.cishome.myapplication.compose.player.pages.NewPlayerCommand
+import de.dom.cishome.myapplication.config.AsyncResponse
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerListFilter
+import de.dom.cishome.myapplication.tm.adapter.out.PlayerPersistenceAdapter
 import de.dom.cishome.myapplication.tm.application.services.PlayerApplicationService
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
+import de.dom.cishome.myapplication.tm.application.domain.player.service.RegisterPlayerDomainService
+import de.dom.cishome.myapplication.tm.application.port.`in`.RegisterPlayerUseCase
+import de.dom.cishome.myapplication.tm.application.port.out.PlayerReaderPort
 
 class AllPlayersViewModel(
+    var ctx: Context,
     var filter: PlayerListFilter,
-    val app: PlayerApplicationService = PlayerApplicationService.inject()
+    val app: RegisterPlayerUseCase,
+    val reader: PlayerReaderPort
 ) : ViewModel() {
 
     var all: MutableLiveData<List<Player>> = MutableLiveData<List<Player>>( emptyList() );
@@ -18,34 +26,38 @@ class AllPlayersViewModel(
 
 
     init {
-        this.selectByModel()
+        this.loadAll();
     }
 
-    fun selectByModel(): MutableLiveData<List<Player>> {
-
-        this.app.repo.asyncPlayers {
-            val selected = it.filter { filter.filter(it) }
-            this.selectedTeams.postValue( selected )
-        }
-
-        return this.selectedTeams;
-    }
 
     fun handle( cmd: NewPlayerCommand) {
         var domainCommand = cmd.toDomainCommand();
-        var contactDomainCommand = cmd.toContactDomainCommand();
-        var p = this.app.newPlayer( domainCommand , contactDomainCommand );
-        this.selectedTeams.postValue( this.selectedTeams!!.value!!.plus( p!! ) as List<Player> )
+        //var contactDomainCommand = cmd.toContactDomainCommand();
+        this.app.registerPlayer( domainCommand );
+
+        this.loadAll();
     }
 
-    class ViewFactory(var filter: PlayerListFilter) : ViewModelProvider.Factory{
+    private fun loadAll(){
+        val response = AsyncResponse<List<Player>>( {
+            this.all.postValue(it)
+            this.selectedTeams.postValue(it);
+        } , {} )
+        this.reader.readAll( this.filter ){
+            response.onSuccess( it )
+        }
+    }
+
+    class ViewFactory(var ctx: Context, var filter: PlayerListFilter) : ViewModelProvider.Factory{
 
         companion object{
             private var model: PlayerViewModel? = null;
         }
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return AllPlayersViewModel( filter ) as T;
+            val adapter = PlayerPersistenceAdapter();
+            val registerService = RegisterPlayerDomainService( adapter , adapter )
+            return AllPlayersViewModel( ctx, filter , registerService , adapter ) as T;
         }
     }
 

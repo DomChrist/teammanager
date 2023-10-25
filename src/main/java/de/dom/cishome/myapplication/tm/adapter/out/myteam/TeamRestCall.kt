@@ -1,22 +1,26 @@
 package de.dom.cishome.myapplication.tm.adapter.out.myteam
 
-import android.content.Context
 import android.util.Log
-import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.shared.GsonUtils
+import de.dom.cishome.myapplication.compose.shared.GsonUtils.Companion.fromJson
 import de.dom.cishome.myapplication.compose.team.model.Team
+import de.dom.cishome.myapplication.config.ConfigProperties
+import de.dom.cishome.myapplication.tm.adapter.out.player.PlayerApiObject
+import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.time.LocalDate
 
-class TeamRestApi( val ctx: Context){
+class TeamRestApi(){
 
     private val client = OkHttpClient();
 
-    fun findAll(onSuccess: (t: Array<TeamResponse>) -> Unit, onError: (e: Exception)->Unit) {
+    fun findAll(): List<TeamResponse> {
+        var list:List<TeamResponse> = mutableListOf<TeamResponse>()
         try{
-            var url = "${ctx.getString(R.string.server)}:${ctx.resources.getInteger(R.integer.server_port)}/teams"
+            var url = "${ConfigProperties.SERVER_PATH}:${ConfigProperties.SERVER_PORT}/teams"
             var response: Response = client.newCall(
                 Request.Builder()
                     .get()
@@ -25,29 +29,45 @@ class TeamRestApi( val ctx: Context){
             ).execute();
             var body: String = response.body?.string() ?: "[]";
             Log.i( "ServerResponse" , "${url}:${body}" )
-            var array = GsonUtils.mapper().fromJson<Array<TeamResponse>>( body , Array<TeamResponse>::class.java )
-            onSuccess( array )
+            val json = GsonUtils.mapper()
+                .fromJson<Array<TeamResponse>>(body, Array<TeamResponse>::class.java)
+            list = json!!.toList();
         }catch( e: Exception){
             e.printStackTrace()
-            onError( e )
         }
+        return list;
     }
 
 
-    fun findById( onSuccess: (t: TeamResponse) -> Unit , onError: (e:Exception)->Unit ){
+    fun findById( teamId: String, onSuccess: (t: TeamResponse) -> Unit , onError: (e:Exception)->Unit ){
         try{
-            var url = "${ctx.getString(R.string.server)}:${ctx.resources.getInteger(R.integer.server_port)}/teams/team/id";
+            var url = "${ConfigProperties.SERVER_PATH}:${ConfigProperties.SERVER_PORT}/teams/team/${teamId}";
             var response: Response = client.newCall(
                 Request.Builder()
                     .get()
                     .url(url)
                     .build()
             ).execute();
+            Log.i("Server Response" , "${response.body?.string() ?: ""}")
 
         }catch ( e: Exception ){
             e.printStackTrace();
             onError(e);
         }
+    }
+
+    fun addNewTeamPlayer( teamId: String , p: Player ): PlayerApiObject {
+        var url = "${ConfigProperties.SERVER_PATH}:${ConfigProperties.SERVER_PORT}/teams/team/${teamId}/players";
+        var json = GsonUtils.mapper().toJson(p);
+        var response: Response = client.newCall(
+            Request.Builder()
+                .post( json.toRequestBody() )
+                .url(url)
+                .build()
+        ).execute();
+        val responseJson = response.body?.string() ?: "{}";
+        Log.i("team_api","response ${response.code} | ${responseJson}")
+        return responseJson.fromJson( PlayerApiObject::class.java )
     }
 
 }

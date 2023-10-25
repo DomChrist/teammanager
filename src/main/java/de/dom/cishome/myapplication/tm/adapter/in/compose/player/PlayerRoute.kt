@@ -11,11 +11,11 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import de.dom.cishome.myapplication.compose.player.pages.PlayerInfoPage
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.contactperson.pages.PlayerContactPage
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerDetailClick
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerContactDetailsPage
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerDetailPage
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerListFilter
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerOverviewPage
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.DefaultClickModel
 import de.dom.cishome.myapplication.ui.MainControl
 
 @ExperimentalUnitApi
@@ -42,8 +42,8 @@ fun NavGraphBuilder.playerGraph(navController: NavController, mainControl: MainC
         composable("player/detail/{id}" , arguments = listOf( navArgument("id"){type= NavType.StringType} )){
             var id = navController.currentBackStackEntry?.arguments?.getString("id");
             if( id != null ){
-                val clicks = PlayerDetailClick( {navController.navigateUp()} , {navController.navigate(it)} )
-                PlayerDetailPage().Screen( id , clicks );
+                val clicks = DefaultClickModel( {navController.navigateUp()} , {navController.navigate(it)} )
+                PlayerDetailPage(clicks).Screen( id );
             }
         }
         composable("player/detail/{id}/info" , arguments = listOf( navArgument("id"){type= NavType.StringType} )){
@@ -51,7 +51,7 @@ fun NavGraphBuilder.playerGraph(navController: NavController, mainControl: MainC
         }
         composable("player/detail/{id}/contacts" , arguments = listOf( navArgument("id"){type= NavType.StringType} )){
             var id = it.arguments?.getString("id") ?: "";
-            PlayerContactPage().Screen(playerId = id, control = mainControl)
+            PlayerContactDetailsPage( DefaultClickModel( { navController.navigateUp() } , {navController.navigate(it)} ) ).Screen( id )
         }
 
         composable("player/trial/detail/{id}" ){

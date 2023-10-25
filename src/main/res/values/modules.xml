@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <bool name="myTeam_sub_players">true</bool>
+    <bool name="myTeam_sub_training">false</bool>
+    <bool name="myTeam_sub_competition">true</bool>
+    <bool name="myTeam_sub_locations">false</bool>
+
+</resources>

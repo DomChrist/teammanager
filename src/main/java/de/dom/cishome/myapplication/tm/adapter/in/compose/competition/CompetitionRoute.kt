@@ -10,6 +10,7 @@ import androidx.navigation.navigation
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model.CompetitionsViewModel
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.pages.CompetitionDetailPage
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.pages.CompetitionGamePage
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.pages.CompetitionPage
 import de.dom.cishome.myapplication.tm.adapter.out.competition.CompetitionRepository
 import de.dom.cishome.myapplication.tm.application.services.CompetitionApplicationService
@@ -29,7 +30,17 @@ fun NavGraphBuilder.competitionGraph(navController: NavController){
 
         composable("competition/detail/{id}"){
             var id = it.arguments!!.getString("id")!!;
-            CompetitionDetailPage().Screen( id );
+            var clicks = CompetitionDetailPage.GameDetailClicks(
+                { navController.navigate("competition/detail/${id}/game") }
+            );
+            CompetitionDetailPage( clicks ).Screen( id );
         }
+
+
+        composable("competition/detail/{id}/game"){
+            var id = it.arguments!!.getString("id")!!;
+            CompetitionGamePage().Screen();
+        }
+
     }
 }

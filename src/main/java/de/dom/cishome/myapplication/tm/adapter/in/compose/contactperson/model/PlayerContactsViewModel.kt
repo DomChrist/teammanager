@@ -10,21 +10,12 @@ import de.dom.cishome.myapplication.tm.application.services.ContactPersonApplica
 class PlayerContactsViewModel(
     playerId: String,
     app: ContactPersonApplicationService = ContactPersonApplicationService.inject(),
-    playerApp: PlayerApplicationService = PlayerApplicationService.inject()
     ) : ViewModel() {
 
     var data: MutableLiveData<List<ContactModel>> = MutableLiveData<List<ContactModel>>( emptyList() );
 
     init {
         Thread{
-            playerApp.repo.asyncPlayer( playerId ){
-                it.contactPersons.forEach {
-                    app.reader.readById( it ){
-                        val newList = data.value!!.plus(it);
-                        data.postValue( newList )
-                    }
-                }
-            }
         }.start()
     }
 

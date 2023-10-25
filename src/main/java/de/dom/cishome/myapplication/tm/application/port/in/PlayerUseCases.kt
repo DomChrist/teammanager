@@ -11,3 +11,11 @@ interface RegisterPlayerUseCase{
     fun addContactPerson( playerId: String , contactId: String )
 
 }
+
+interface TrialPlayerUseCase {
+
+    fun trialParticipation( count: Int, p: Player , onSuccess: () -> Unit = {} );
+
+    fun startMembership( p: Player , onSuccess: () -> Unit = {} );
+
+}

@@ -34,6 +34,10 @@ fun CompetitionTimer(){
 
 }
 
+fun CompetitionTimerLabel(){
+
+}
+
 
 @Composable
 private fun content(

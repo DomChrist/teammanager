@@ -32,10 +32,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import de.dom.cishome.myapplication.compose.shared.TmColors
 import de.dom.cishome.myapplication.compose.team.model.Team
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.myteam.model.MyTeamListViewModel
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.myteam.model.MyTeamViewModel
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
+import de.dom.cishome.myapplication.tm.application.services.MyTeamApplicationService
 import de.dom.cishome.myapplication.ui.MainControl
 
 class MyTeamSelectionScreen() {
+
+    var app: MyTeamApplicationService = MyTeamApplicationService.inject();
 
     @Composable fun Screen(
         model: MyTeamListViewModel = viewModel(factory=MyTeamListViewModel.Factory(LocalContext.current)),
@@ -46,21 +50,29 @@ class MyTeamSelectionScreen() {
         if( teams.value.isEmpty() ){
             Tm.components().Loading()
         } else {
-            content( teams.value , clicks );
+            content( teams.value , clicks ){
+                this.app.select( it );
+                clicks.navTo( "myteams/teams/team?team=${it.label}" )
+            };
         }
     }
 
 
-    @Composable internal fun content(teams: List<Team>, clicks: MainControl) {
+    @Composable internal fun content(teams: List<Team>, clicks: MainControl , onSelect: (t:Team)->Unit) {
         Scaffold(
             topBar = { Tm.components().TmTopBar( title = "TEAMS" , showBackArrow = true , clickModel = clicks) },
             bottomBar = { this.bottomBar() },
-            content = { this.body(it , teams , clicks) }
+            content = { this.body(it , teams , clicks , onSelect) }
             )
     }
 
     @Composable
-    private fun body(it: PaddingValues, teams: List<Team>, clicks: MainControl) {
+    private fun body(
+        it: PaddingValues,
+        teams: List<Team>,
+        clicks: MainControl,
+        onSelect: (t: Team) -> Unit
+    ) {
         Box( Modifier.padding(it)){
             LazyVerticalGrid(columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(15.dp),
@@ -68,7 +80,7 @@ class MyTeamSelectionScreen() {
                 horizontalArrangement = Arrangement.spacedBy(25.dp) ){
                 items( teams.size , key = {it}){
                     var t = teams[ it ];
-                    TeamCard( t , select = { clicks.navTo( "myteams/teams/team?team=${it.label}" ) } );
+                    TeamCard( t , onSelect );
                 }
             }
         }
@@ -134,6 +146,6 @@ fun MyTeamSelectionScreenPreview(){
         )
     }
 
-    MyTeamSelectionScreen().content(teams = state.value, clicks = MainControl({},{},{}))
+    MyTeamSelectionScreen().content(teams = state.value, clicks = MainControl({},{},{}), {})
 
 }

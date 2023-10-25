@@ -1,25 +1,29 @@
 package de.dom.cishome.myapplication.tm.adapter.out
 
 import android.util.Log
-import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.shared.GsonUtils
 import de.dom.cishome.myapplication.compose.shared.PlayerFileHelper
+import de.dom.cishome.myapplication.config.AsyncResponse
+import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerListFilter
+import de.dom.cishome.myapplication.tm.adapter.out.myteam.TeamRestApi
+import de.dom.cishome.myapplication.tm.adapter.out.player.PlayerFileRepository
+import de.dom.cishome.myapplication.tm.adapter.out.player.PlayerRestCall
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
+import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayerContactDetail
 import de.dom.cishome.myapplication.tm.application.port.out.CreatePlayerPort
-import de.dom.cishome.myapplication.tm.application.port.out.PlayerFilter
 import de.dom.cishome.myapplication.tm.application.port.out.PlayerReaderPort
 import de.dom.cishome.myapplication.tm.application.port.out.UpdatePlayerPort
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
+import de.dom.cishome.myapplication.tm.application.port.out.UpdateTrialPlayerPort
 import java.io.FileNotFoundException
 
-class PlayerPersistenceAdapter private constructor(): CreatePlayerPort , PlayerReaderPort, UpdatePlayerPort {
+class PlayerPersistenceAdapter constructor() : CreatePlayerPort , PlayerReaderPort, UpdatePlayerPort ,
+    UpdateTrialPlayerPort {
 
     private val helper = PlayerFileHelper();
+    private val fileRepository: PlayerFileRepository = PlayerFileRepository();
+    private val playerRestCall: PlayerRestCall = PlayerRestCall()
 
-    companion object CDI{
+    companion object {
         var adapter: PlayerPersistenceAdapter? = null;
         fun inject(): PlayerPersistenceAdapter {
             if( adapter == null ) adapter = PlayerPersistenceAdapter();
@@ -29,34 +33,29 @@ class PlayerPersistenceAdapter private constructor(): CreatePlayerPort , PlayerR
 
 
     override fun persist(p: Player) {
+        try{
+            this.fileRepository.persist( p );
+            Thread{
+                TeamRestApi()
+                    .addNewTeamPlayer( p.team , p )
+                    .map();
+            }.start()
+        }catch ( e: Exception ){
+            e.printStackTrace();
+        }
+    }
 
-        var file = helper.playerFile( p.key() , "player.json" );
-        var idFile = helper.playerFile(p.id , "player.json");
-
-        var json = GsonUtils.mapper().toJson( p );
-
-        //helper.write( file , json );
-        helper.write( idFile , json );
-
-        Thread{
-            try{
-                Log.i("PlayerRepository:Persist","persist player to server")
-                val client = OkHttpClient();
-                var body = json.toRequestBody( "application/json".toMediaType() )
-                var request = Request.Builder()
-                    .url("${R.string.server}:8071/players")
-                    .post( body = body )
-                    .build();
-                val newCall = client.newCall(request);
-                val response = newCall.execute();
-                Log.i("PlayerRepository:Persist" , response.message)
-            }catch (e: Exception){
-                e.printStackTrace()
-            }
-        }.start()
-
-
-
+    override fun persistNewTeamPlayer(p: Player, teamId: String , call: AsyncResponse<Player>) {
+        try{
+            Thread{
+                TeamRestApi()
+                    .addNewTeamPlayer( p.team , p )
+                    .map();
+                this.fileRepository.persist( p );
+            }.start()
+        }catch ( e: Exception ){
+            e.printStackTrace();
+        }
     }
 
     override fun readAll(onSuccess: (list: List<Player>) -> Unit) {
@@ -80,18 +79,60 @@ class PlayerPersistenceAdapter private constructor(): CreatePlayerPort , PlayerR
         onSuccess( list );
     }
 
-    override fun readAll(f: PlayerFilter, onSuccess: (list: List<Player>) -> Unit) {
-        TODO("Not yet implemented")
+    override fun readAll(f: PlayerListFilter, onSuccess: (list: List<Player>) -> Unit) {
+        Thread{
+            try{
+                val list: List<Player> = this.playerRestCall.playersInTeam( f.value )?.map { e -> e.map() }
+                    ?: this.fileRepository.players()
+                list.let(onSuccess)
+            }catch ( e: Exception){
+                onSuccess( listOf() );
+            }
+
+        }.start()
     }
 
     override fun byId(id: String, onSuccess: (list: Player) -> Unit) {
         Thread{
-            var file = helper.playerFile(id)
-            var json = helper.read(file);
-            var player = GsonUtils.mapper().fromJson<Player>( json , Player::class.java );
-            onSuccess( player );
+            var player = remoteFindById(id) ?: localFindById(id)
+
+            player?.let {
+                PlayerFileRepository().persist(it)
+                onSuccess(it)
+            }
         }.start()
     }
+
+    override fun readCommunications(
+        playerId: String,
+        onSuccess: (list: List<PlayerContactDetail>) -> Unit
+    ) {
+        Thread{
+            val list = PlayerRestCall().playerCommunications( playerId )
+                .map { PlayerContactDetail( it.id , it.description , it.value ) }
+            onSuccess( list )
+        }.start()
+    }
+
+    override fun create(playerId: String, newContact: PlayerContactDetail, onSuccess: () -> Unit) {
+        Thread{
+            PlayerRestCall().playerCommunications( playerId = playerId , newContact );
+            onSuccess();
+        }.start()
+    }
+
+
+    private fun localFindById( id: String ): Player? {
+        var file = helper.playerFile(id)
+        var json = helper.read(file);
+        var player = GsonUtils.mapper().fromJson<Player>( json , Player::class.java );
+        return player;
+    }
+
+    private fun remoteFindById( id: String ): Player? {
+        return PlayerRestCall().playerSync( id )?.map() ?: null;
+    }
+
 
     override fun update(p: Player) {
         this.persist(p);
@@ -104,5 +145,22 @@ class PlayerPersistenceAdapter private constructor(): CreatePlayerPort , PlayerR
         }
         playerDir.delete();
     }
+
+
+
+    override fun trialParticipation(count: Int, id: String) {
+        Thread{
+            PlayerRestCall().trialParticipation( count , id );
+        }.start()
+    }
+
+    override fun startMembership(id: String) {
+        Thread{
+            PlayerRestCall().activateMember( id );
+        }.start()
+    }
+
+
+
 
 }

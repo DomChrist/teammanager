@@ -10,16 +10,23 @@ import de.dom.cishome.myapplication.tm.application.services.MyTeamApplicationSer
 
 class MyTeamViewModel(val ctx: Context, val id: String?, val app: MyTeamApplicationService = MyTeamApplicationService() ): ViewModel() {
 
+    private val myTeamApp = MyTeamApplicationService.inject();
+
     val selectedTeam = MutableLiveData<Team>( null );
 
     init {
         var team = id ?: "";
-        TeamPersistenceAdapter(ctx).findById( team ){ selectedTeam.postValue(it) }
+        if( myTeamApp.selected() != null ){
+            this.selectedTeam.postValue( myTeamApp.selected() )
+        } else {
+            TeamPersistenceAdapter(ctx).findById( team ){ selectedTeam.postValue(it) }
+        }
     }
 
 
 
     class MyTeamViewFactory(var ctx: Context, private var selectedTeam: String?) : ViewModelProvider.Factory{
+
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return MyTeamViewModel( ctx, selectedTeam!! ) as T;
         }
