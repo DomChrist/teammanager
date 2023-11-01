@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -23,8 +24,10 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -33,13 +36,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.shared.TmColors
+import de.dom.cishome.myapplication.compose.shared.TmDevice
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model.GameResult
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model.GameTimer
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
@@ -57,17 +64,22 @@ class CompetitionGamePage {
     private var timer: GameTimer.Timer? = null;
 
     @Composable
-    fun Screen(){
+    fun Screen( gameEvents: MutableList<GameTimeEvent> = mutableListOf() ){
+        var ctx = LocalContext.current;
         this.running = remember{ mutableStateOf(false) }
         this.goalsTeam1 = remember{ mutableStateOf(0) }
         this.goalsTeam2 = remember{ mutableStateOf(0) }
         this.screenTime = remember {
             mutableStateOf( GameTimer.GameTime.withMinutes(8))
         }
-        this.gameEvents = remember{ mutableStateOf( mutableListOf<GameTimeEvent>() ) }
+        this.gameEvents = remember{ mutableStateOf( gameEvents ) }
 
         val clicks = Clicks( {
-            this.timer = GameTimer.Timer( this.screenTime , this.running);
+            this.timer = GameTimer.Timer( this.screenTime , this.running , onMinute = {
+                Thread{
+                    TmDevice.vibrate( ctx , (it % 60) +1 )
+                }.start()
+            });
             this.goalsTeam1.value = 0;
             this.goalsTeam2.value = 0;
             this.timer!!.start();
@@ -231,42 +243,35 @@ class CompetitionGamePage {
                 horizontalArrangement = Arrangement.spacedBy(25.dp) ){
                 items( gameEvents.value.size , key = {it}){
                     var event = gameEvents.value[ it ];
-                    Card(modifier = Modifier.padding(5.dp)) {
-                        Text(text = event.string())
-                    }
-
-                    if( false ){
-                        Card {
-                            Row(){
-                                Column( modifier = Modifier.weight(1f)) {
-                                    Text("hallo")
-                                }
-                                Column( modifier = Modifier.weight(8f)) {
-                                    Text("hallo")
-                                }
-                                Column( modifier = Modifier.weight(1f)) {
-                                    Button(
-                                        onClick = {},
-                                        modifier = Modifier
-                                            .padding(55.dp, 5.dp)
-                                            .fillMaxWidth()
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.AddCircle,
-                                            tint = TmColors.secondaryColor,
-                                            contentDescription = "Localized description"
-                                        )
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-
+                    GameTimeEventComponent( event )
                 }
             }
         }
 
+    }
+
+    private @Composable
+    fun GameTimeEventComponent(event: CompetitionGamePage.GameTimeEvent) {
+        var tu = TextUnit(5.5f,TextUnitType.Em)
+        var fw = FontWeight.Bold
+        Row(modifier=Modifier.padding(0.dp,0.dp,0.dp,2.dp)){
+            Column(modifier = Modifier.weight(1f)) {
+                Surface {
+                    Image( modifier = Modifier.size(40.dp), painter = painterResource(id = event.resource) , contentDescription = "")
+                }
+            }
+            Column(modifier=Modifier.weight(3f)) {
+                Card(modifier= Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 8.dp, 0.dp, 0.dp)){
+                    Text("${event.text}" , fontSize = tu , fontWeight = fw)
+                }
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text("${event.timeStampToString()}" , modifier=Modifier.padding(3.dp,5.dp,0.dp,0.dp),
+                    fontSize = tu, fontWeight = fw)
+            }
+        }
     }
 
     @Composable
@@ -351,16 +356,21 @@ class CompetitionGamePage {
     )
 
 
-    data class GameTimeEvent( val timeStamp: Int , val text: String  ){
+    data class GameTimeEvent( val timeStamp: Int , val text: String , val resource: Int ){
         fun string(): String {
             val m = timeStamp / 60;
             val s = timeStamp % 60;
 
-            return "$m:$s $text"
+            return "${m}'min  $text"
+        }
+
+        fun timeStampToString(): String{
+            val m = (timeStamp / 60) + 1;
+            return "${m}' min"
         }
 
         companion object{
-            fun GOAL(timeStamp: Int, value: Int, value1: Int): GameTimeEvent = GameTimeEvent( timeStamp , "TOOOOOOOOOR! $value : $value1" )
+            fun GOAL(timeStamp: Int, value: Int, value1: Int): GameTimeEvent = GameTimeEvent( timeStamp , "TOR! $value : $value1" , R.drawable.tor )
 
         }
 
@@ -376,6 +386,11 @@ class CompetitionGamePage {
 @Composable
 private fun preview(){
 
-    CompetitionGamePage().Screen();
+    CompetitionGamePage().Screen(
+        mutableListOf<CompetitionGamePage.GameTimeEvent>(
+            CompetitionGamePage.GameTimeEvent.GOAL(59 , 1 , 0),
+            CompetitionGamePage.GameTimeEvent.GOAL(159 , 1 , 1)
+        )
+    );
 
 }

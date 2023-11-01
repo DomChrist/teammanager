@@ -1,4 +1,4 @@
-package de.dom.cishome.myapplication.tm.adapter.`in`.compose.player
+package de.dom.cishome.myapplication.tm.adapter.routing.player
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,10 +11,10 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import de.dom.cishome.myapplication.compose.player.pages.PlayerInfoPage
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerContactDetailsPage
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerDetailPage
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerListFilter
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerOverviewPage
+import de.dom.cishome.myapplication.tm.adapter.compose.player.overview.PlayerOverviewPage
+import de.dom.cishome.myapplication.tm.adapter.compose.player.contact.PlayerContactDetailsPage
+import de.dom.cishome.myapplication.tm.adapter.compose.player.detail.PlayerDetailPage
+import de.dom.cishome.myapplication.tm.adapter.compose.player.shared.PlayerListFilter
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.DefaultClickModel
 import de.dom.cishome.myapplication.ui.MainControl
 
@@ -30,20 +30,22 @@ fun NavGraphBuilder.playerGraph(navController: NavController, mainControl: MainC
         composable("start" , listOf( navArgument("team"){defaultValue=""; type = NavType.StringType} )){
             var team = navController.currentBackStackEntry?.arguments?.getString("team") ?: "";
             var filter = if( team.isNotBlank() ) PlayerListFilter.byTeam(team) else PlayerListFilter.none();
-            PlayerOverviewPage().Screen( filter=filter, clicks = PlayerOverviewPage.PlayerOverviewClick.clicks(navController) )
+            val clicks = DefaultClickModel( {navController.navigateUp()} , {navController.navigate(it)} )
+            PlayerOverviewPage(filter,clicks).Screen()
         }
 
         composable("players?team={team}" , listOf( navArgument("team"){defaultValue=""; type = NavType.StringType} )){
             var team = navController.currentBackStackEntry?.arguments?.getString("team") ?: "";
             var filter = if( team.isNotBlank() ) PlayerListFilter.byTeam(team) else PlayerListFilter.none();
-            PlayerOverviewPage().Screen( filter=filter, clicks = PlayerOverviewPage.PlayerOverviewClick.clicks(navController) )
+            val clicks = DefaultClickModel( {navController.navigateUp()} , {navController.navigate(it)} )
+            PlayerOverviewPage(filter,clicks).Screen()
         }
 
         composable("player/detail/{id}" , arguments = listOf( navArgument("id"){type= NavType.StringType} )){
             var id = navController.currentBackStackEntry?.arguments?.getString("id");
             if( id != null ){
                 val clicks = DefaultClickModel( {navController.navigateUp()} , {navController.navigate(it)} )
-                PlayerDetailPage(clicks).Screen( id );
+                PlayerDetailPage(id,clicks).Screen();
             }
         }
         composable("player/detail/{id}/info" , arguments = listOf( navArgument("id"){type= NavType.StringType} )){
@@ -56,6 +58,10 @@ fun NavGraphBuilder.playerGraph(navController: NavController, mainControl: MainC
 
         composable("player/trial/detail/{id}" ){
             //TrialPlayerDetailPage(navBackStackEntry = it, playerService=playerService , navController = navController)
+        }
+
+        composable("v2/player/newPlayer"){
+
         }
 
     }

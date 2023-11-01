@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,7 +66,7 @@ class HomeScreen {
     @Composable
     private fun content(clicks: MainControl){
         Scaffold (
-            topBar = {Tm.components().TmTopBar(clickModel = clicks)},
+            topBar = {Tm.components().TmTopBar(clickModel = clicks )},
             bottomBar = { BottomBar(clicks) }
         ){
             Box(modifier = Modifier.padding(it)){
@@ -137,7 +138,7 @@ class HomeScreen {
                 label = { Text("PROFILE" , color = TmColors.secondaryColor) }
             )
             NavigationBarItem(selected = false,
-                onClick = { nav.navTo("home") },
+                onClick = { nav.navTo("settings") },
                 icon = { Icon(Icons.Filled.Settings, tint= TmColors.secondaryColor, contentDescription = "Localized description") },
                 label = { Text("SETTINGS" , color= TmColors.secondaryColor) }
             )
@@ -172,8 +173,8 @@ class HomeScreen {
     @Composable
     private fun PermissionRequest(){
         var permission = rememberMultiplePermissionsState(permissions = listOf<String>(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            //Manifest.permission.READ_EXTERNAL_STORAGE,
+            //Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.VIBRATE,
             Manifest.permission.CAMERA
         ))

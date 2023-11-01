@@ -3,17 +3,14 @@ package de.dom.cishome.myapplication.compose.shared
 import android.os.Environment
 import android.util.Log
 import java.io.File
+import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.FileWriter
 
 open class PlayerFileHelper {
 
     private fun tm(): File{
-        //var f = Environment.getExternalStoragePublicDirectory("documents")
-        //var f = Environment.getDataDirectory()!!;
         var f = File("/data/user/0/de.dom.cishome.myapplication/files")
-        Log.d("files" , "${f.canRead()}")
-        Log.d("files" , "${f.canWrite()}")
         return f;
     }
     fun write( f: File, json: String ){
@@ -42,6 +39,13 @@ open class PlayerFileHelper {
             dir.mkdirs()
         };
         return dir;
+    }
+
+    fun whenPlayerFileExist( playerId: String, fileName: String , then: (f:File)->Unit ){
+        val dir = File( tm().absolutePath + "/tm/players/${playerId}" , fileName )
+        if( dir != null && dir.exists() ){
+            then( dir );
+        }
     }
 
     fun playerFile( id: String , file: String): File {
@@ -84,5 +88,12 @@ open class PlayerFileHelper {
         if( !dir.exists()) dir.mkdirs();
         return dir;
     }
+
+    fun copy(readBytes: ByteArray, targetFile: File) {
+        val out = FileOutputStream( targetFile );
+        out.write(readBytes)
+        out.close();
+    }
+
 
 }

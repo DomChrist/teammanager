@@ -1,9 +1,11 @@
 package de.dom.cishome.myapplication.tm.application.port.out
 
 import de.dom.cishome.myapplication.config.AsyncResponse
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerListFilter
+import de.dom.cishome.myapplication.tm.adapter.compose.player.shared.PlayerListFilter
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayerContactDetail
+import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayersTeamModel
+import java.io.File
 
 
 interface CreatePlayerPort{
@@ -22,6 +24,8 @@ interface UpdatePlayerPort{
 
     fun create( playerId: String , newContact: PlayerContactDetail , onSuccess: () -> Unit = {} )
 
+    fun updateImage( playerId: String , imageFile: File)
+
 }
 
 interface UpdateTrialPlayerPort{
@@ -34,9 +38,10 @@ interface UpdateTrialPlayerPort{
 
 interface PlayerReaderPort{
 
+    @Deprecated(message = "deprecated, replace with readAll(PlayerListFilter)")
     fun readAll( onSuccess: (list: List<Player>) -> Unit );
 
-    fun readAll( f: PlayerListFilter , onSuccess: (list: List<Player>)->Unit );
+    fun readAll(f: PlayerListFilter, onSuccess: (response: PlayersTeamModel)->Unit );
 
     fun byId( id: String, onSuccess: (list: Player) -> Unit )
 

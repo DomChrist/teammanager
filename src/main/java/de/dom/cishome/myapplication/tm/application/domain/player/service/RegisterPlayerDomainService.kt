@@ -2,6 +2,7 @@ package de.dom.cishome.myapplication.tm.application.domain.player.service
 
 import androidx.compose.runtime.Composable
 import de.dom.cishome.myapplication.config.AsyncResponse
+import de.dom.cishome.myapplication.tm.adapter.out.PlayerPersistenceAdapter
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.port.`in`.CreatePlayerCommand
 import de.dom.cishome.myapplication.tm.application.port.`in`.RegisterPlayerUseCase
@@ -10,11 +11,10 @@ import de.dom.cishome.myapplication.tm.application.port.out.PlayerReaderPort
 import java.time.LocalDate
 
 class RegisterPlayerDomainService(
-    private val reader: PlayerReaderPort,
-    private val out: CreatePlayerPort
+    private val adapter: PlayerPersistenceAdapter = PlayerPersistenceAdapter(),
 ) : RegisterPlayerUseCase {
 
-    override fun registerPlayer(cmd: NewPlayerDomainCommand): Player {
+    override fun registerPlayer(cmd: NewPlayerDomainCommand , onSuccess: () -> Unit): Player {
         val state = if( cmd.trail ) Player.MemberState(Player.MemberState.Trial(LocalDate.now(), 0), null )
             else Player.MemberState( null , Player.MemberState.Active(true))
         val player = Player(
@@ -26,14 +26,14 @@ class RegisterPlayerDomainService(
             listOf<String>(),
             state
         )
-        out.persistNewTeamPlayer(player, cmd.team , AsyncResponse<Player>( {} , {} ) )
+        adapter.persistNewTeamPlayer(player, cmd.team , AsyncResponse<Player>( { onSuccess()} , {} ) )
         return player;
     }
 
     override fun addContactPerson(playerId: String, contactId: String) {
-        reader.byId(playerId) {
+        adapter.byId(playerId) {
             //it.contactPersons = it.contactPersons.plus(contactId)
-            out.persist(it);
+            adapter.persist(it);
         }
     }
 

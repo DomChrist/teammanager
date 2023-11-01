@@ -7,6 +7,7 @@ import de.dom.cishome.myapplication.compose.team.model.Team
 import de.dom.cishome.myapplication.config.ConfigProperties
 import de.dom.cishome.myapplication.tm.adapter.out.player.PlayerApiObject
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -56,18 +57,19 @@ class TeamRestApi(){
         }
     }
 
-    fun addNewTeamPlayer( teamId: String , p: Player ): PlayerApiObject {
+    fun addNewTeamPlayer( teamId: String , p: Player ): Boolean {
         var url = "${ConfigProperties.SERVER_PATH}:${ConfigProperties.SERVER_PORT}/teams/team/${teamId}/players";
         var json = GsonUtils.mapper().toJson(p);
         var response: Response = client.newCall(
             Request.Builder()
-                .post( json.toRequestBody() )
+                .post( json.toRequestBody("application/json".toMediaType()) )
                 .url(url)
                 .build()
         ).execute();
         val responseJson = response.body?.string() ?: "{}";
         Log.i("team_api","response ${response.code} | ${responseJson}")
-        return responseJson.fromJson( PlayerApiObject::class.java )
+        return response.isSuccessful;
+        //return responseJson.fromJson( PlayerApiObject::class.java )
     }
 
 }
@@ -93,10 +95,15 @@ enum class AgeGroup(val local: String, val international: String, val older: Int
     U13( "D" , "U-13" , 12 , 11 ),
     U11( "E" , "U-11" , 10 , 9 ),
     U9( "F" , "U-9" , 8 , 7 ),
-    U7( "Bambini" , "U-7" , 6 , 5 );
+    U7( "Bambini" , "U-7" , 6 , 2 );
 
     fun current( current: Int = LocalDate.now().year ): CurrentAgeGroup{
         return CurrentAgeGroup( current - younger , current - older )
+    }
+
+    fun yearRange(): Pair<Int,Int>{
+        var year = LocalDate.now().year;
+        return Pair( year - this.younger , year - this.older )
     }
 
     fun isInGroup(age: Int): Boolean {

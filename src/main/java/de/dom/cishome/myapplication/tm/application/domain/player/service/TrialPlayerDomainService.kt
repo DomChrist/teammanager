@@ -20,8 +20,7 @@ class TrialPlayerDomainService : TrialPlayerUseCase {
         Thread{
             this.adapter.startMembership( p.id )
             onSuccess();
-        }
-        TODO("Not yet implemented")
+        }.start()
     }
 
 

@@ -6,14 +6,21 @@ import de.dom.cishome.myapplication.compose.shared.GsonUtils.Companion.fromJson
 import de.dom.cishome.myapplication.config.ConfigProperties
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayerContactDetail
+import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayersTeamModel
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
-import java.lang.IllegalArgumentException
+import java.io.File
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.Base64
+
 
 class PlayerRestCall() {
 
@@ -36,7 +43,7 @@ class PlayerRestCall() {
         onSuccess( array );
     }
 
-    fun playersInTeam( teamId: String ): List<PlayerApiObject>? {
+    fun playersInTeam( teamId: String ): PlayersTeamModel? {
         try{
             var path = "/teams/team/${teamId}/players";
             var url = "${ConfigProperties.SERVER_PATH}:${ConfigProperties.SERVER_PORT}/${path}"
@@ -48,10 +55,10 @@ class PlayerRestCall() {
                     .build()
             ).execute();
             observer.close(response)
-            var body: String = response.body?.string() ?: "[]";
+            var body: String = response.body?.string() ?: "{}";
             Log.i( "ServerResponse" , "${url}:${body}" )
-            var array = GsonUtils.mapper().fromJson<Array<PlayerApiObject>>( body , Array<PlayerApiObject>::class.java )
-            return array.toList();
+            var array = GsonUtils.mapper().fromJson<TeamPlayerResponse>( body , TeamPlayerResponse::class.java )
+            return array.toModel();
         }catch ( e: Exception ){
             e.printStackTrace();
             return null;
@@ -68,7 +75,7 @@ class PlayerRestCall() {
 
 
     fun playerSync( playerId: String ): PlayerApiObject? {
-        var path = "/players/${playerId}"
+        var path = "players/${playerId}"
         var url = "${ConfigProperties.SERVER_PATH}:${ConfigProperties.SERVER_PORT}/${path}"
         var response: Response = httpGet(url);
 
@@ -104,11 +111,14 @@ class PlayerRestCall() {
     }
 
     fun activateMember( id: String ){
+        val json = GsonUtils.mapper().toJson(PlayerRequest.PlayerMembershipRequest(LocalDate.now()))
+        val body = json.toRequestBody("application/json".toMediaType());// RequestBody.create(null, byteArrayOf())
         val request = Request.Builder()
             .url( "${root()}/players/$id/member" )
-            .post( "".toRequestBody(null) )
+            .post(body)
             .build();
         val response = client.newCall( request ).execute();
+        Log.i("ApiCall" , "activateMember: ${response.code}")
     }
 
     fun playerCommunications( playerId: String ): List<PlayerContactResponse> {
@@ -127,14 +137,34 @@ class PlayerRestCall() {
 
     fun playerCommunications( playerId: String , detail: PlayerContactDetail ){
         var json = GsonUtils.mapper().toJson( detail );
+        var url = "${root()}/players/$playerId/communication";
         val request = Request.Builder()
-            .url( "${root()}/players/$playerId/communication" )
+            .url( url )
             .post( json.toRequestBody("application/json".toMediaType()) )
             .build();
         val response = log(client.newCall(request).execute());
     }
 
 
+    fun playerImageUpdate( playerId: String , imageFile: File){
+        val data = imageFile.readBytes();
+        val file = data.toRequestBody("application/octet-stream".toMediaType());
+
+        //val file = String( Base64.getMimeEncoder().encode(data) );
+
+        var mp = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("file" , "file",file )
+            .addFormDataPart("name" , "main" )
+            .build();
+
+        val request = Request.Builder()
+            .url("${root()}/players/$playerId/image")
+            .post( mp )
+            .build();
+
+        client.newCall( request ).execute();
+    }
 
 
 

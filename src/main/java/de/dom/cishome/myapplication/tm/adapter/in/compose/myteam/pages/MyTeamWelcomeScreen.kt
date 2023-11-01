@@ -57,24 +57,24 @@ class MyTeamWelcomePage(val teamId: String? ) {
         var selectedTeam = remember{ mutableStateOf<Team?>(model.selectedTeam.value) };
         model.selectedTeam.observeForever { selectedTeam.value = it }
 
-        if( selectedTeam.value != null ){
-            this.modules = modules( selectedTeam.value!! )
-            this.content( selectedTeam.value!! , this.modules, clicks )
-        }
+            if( teamId != null){
+                this.modules = modules( teamId ?: "unknown" )
+                this.content( selectedTeam?.value ?: Team(teamId , "Loading...") , this.modules, clicks )
+            }
     }
 
     @Composable
-    private fun modules( t: Team ): List<CommonComponents.CardMenuItem> {
+    private fun modules( id: String ): List<CommonComponents.CardMenuItem> {
         var r = LocalContext.current.resources!!;
         return mutableListOf<CommonComponents.CardMenuItem>().apply {
             if (r.getBoolean(R.bool.myTeam_sub_players))
-                add(CommonComponents.CardMenuItem("Spieler", "players?team=${t.id}", R.drawable.teamplayer))
+                add(CommonComponents.CardMenuItem("Spieler", "players?team=${id}", R.drawable.teamplayer))
 
             if (r.getBoolean(R.bool.myTeam_sub_training))
                 add(CommonComponents.CardMenuItem("Training", "training", R.drawable.trainer))
 
             if (r.getBoolean(R.bool.myTeam_sub_competition))
-                add(CommonComponents.CardMenuItem("Spieltag", "competition/team/${t.id}", R.drawable.tuniert))
+                add(CommonComponents.CardMenuItem("Spieltag", "competition/team/${id}", R.drawable.tuniert))
 
             if (r.getBoolean(R.bool.myTeam_sub_locations))
                 add(CommonComponents.CardMenuItem("Platz", "platz", R.drawable.platz))

@@ -17,8 +17,8 @@ class PlayerApplicationService constructor(val ctx: Context ) {
     private val registerUseCase: RegisterPlayerUseCase;
 
     init {
-        this.deletePlayerUseCase = PlayerDomainService( ctx , adapter )
-        this.registerUseCase = RegisterPlayerDomainService( adapter , adapter )
+        this.deletePlayerUseCase = PlayerDomainService( adapter )
+        this.registerUseCase = RegisterPlayerDomainService( adapter )
     }
 
     fun newPlayer(cmd: NewPlayerDomainCommand , cp: CreateContactPersonCommand):Player {

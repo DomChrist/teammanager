@@ -47,6 +47,19 @@
                     />
             </intent-filter>
         </activity>
+        <activity android:name=".InitializeActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="team-manager.com"
+                    android:scheme="app"
+                    android:path="/callback"
+                    />
+            </intent-filter>
+        </activity>
         <activity android:name=".MyTeamActivity" android:exported="true" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"></action>
@@ -68,7 +81,15 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
+        <provider
+            android:name=".tm.adapter.compose.player.detail.ComposeFileProvider"
+            android:authorities="de.dom.cishome.myapplication.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
 
     </application>
 

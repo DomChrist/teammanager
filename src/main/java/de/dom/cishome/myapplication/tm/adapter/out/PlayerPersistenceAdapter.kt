@@ -4,16 +4,18 @@ import android.util.Log
 import de.dom.cishome.myapplication.compose.shared.GsonUtils
 import de.dom.cishome.myapplication.compose.shared.PlayerFileHelper
 import de.dom.cishome.myapplication.config.AsyncResponse
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerListFilter
+import de.dom.cishome.myapplication.tm.adapter.compose.player.shared.PlayerListFilter
 import de.dom.cishome.myapplication.tm.adapter.out.myteam.TeamRestApi
 import de.dom.cishome.myapplication.tm.adapter.out.player.PlayerFileRepository
 import de.dom.cishome.myapplication.tm.adapter.out.player.PlayerRestCall
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayerContactDetail
+import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayersTeamModel
 import de.dom.cishome.myapplication.tm.application.port.out.CreatePlayerPort
 import de.dom.cishome.myapplication.tm.application.port.out.PlayerReaderPort
 import de.dom.cishome.myapplication.tm.application.port.out.UpdatePlayerPort
 import de.dom.cishome.myapplication.tm.application.port.out.UpdateTrialPlayerPort
+import java.io.File
 import java.io.FileNotFoundException
 
 class PlayerPersistenceAdapter constructor() : CreatePlayerPort , PlayerReaderPort, UpdatePlayerPort ,
@@ -38,7 +40,6 @@ class PlayerPersistenceAdapter constructor() : CreatePlayerPort , PlayerReaderPo
             Thread{
                 TeamRestApi()
                     .addNewTeamPlayer( p.team , p )
-                    .map();
             }.start()
         }catch ( e: Exception ){
             e.printStackTrace();
@@ -50,8 +51,8 @@ class PlayerPersistenceAdapter constructor() : CreatePlayerPort , PlayerReaderPo
             Thread{
                 TeamRestApi()
                     .addNewTeamPlayer( p.team , p )
-                    .map();
                 this.fileRepository.persist( p );
+                call.onSuccess(p)
             }.start()
         }catch ( e: Exception ){
             e.printStackTrace();
@@ -79,16 +80,16 @@ class PlayerPersistenceAdapter constructor() : CreatePlayerPort , PlayerReaderPo
         onSuccess( list );
     }
 
-    override fun readAll(f: PlayerListFilter, onSuccess: (list: List<Player>) -> Unit) {
+    override fun readAll(f: PlayerListFilter, onSuccess: (response: PlayersTeamModel) -> Unit) {
         Thread{
             try{
-                val list: List<Player> = this.playerRestCall.playersInTeam( f.value )?.map { e -> e.map() }
-                    ?: this.fileRepository.players()
-                list.let(onSuccess)
+                val list: PlayersTeamModel? = this.playerRestCall.playersInTeam( f.value )
+                    ?: PlayersTeamModel(204 , null , listOf());
+                onSuccess( list!! );
             }catch ( e: Exception){
-                onSuccess( listOf() );
+                e.printStackTrace()
+                onSuccess( PlayersTeamModel(204 , null , listOf()) )
             }
-
         }.start()
     }
 
@@ -121,6 +122,13 @@ class PlayerPersistenceAdapter constructor() : CreatePlayerPort , PlayerReaderPo
         }.start()
     }
 
+    override fun updateImage(playerId: String, imageFile: File) {
+        Thread{
+            PlayerRestCall()
+                .playerImageUpdate( playerId = playerId , imageFile = imageFile );
+        }.start();
+    }
+
 
     private fun localFindById( id: String ): Player? {
         var file = helper.playerFile(id)
@@ -149,15 +157,11 @@ class PlayerPersistenceAdapter constructor() : CreatePlayerPort , PlayerReaderPo
 
 
     override fun trialParticipation(count: Int, id: String) {
-        Thread{
-            PlayerRestCall().trialParticipation( count , id );
-        }.start()
+        PlayerRestCall().trialParticipation( count , id );
     }
 
     override fun startMembership(id: String) {
-        Thread{
-            PlayerRestCall().activateMember( id );
-        }.start()
+        PlayerRestCall().activateMember( id );
     }
 
 

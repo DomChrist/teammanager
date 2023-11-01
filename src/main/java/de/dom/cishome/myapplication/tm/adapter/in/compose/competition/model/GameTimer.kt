@@ -3,7 +3,7 @@ package de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.model
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import de.dom.cishome.myapplication.R
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.pages.CompetitionGamePage
+import de.dom.cishome.myapplication.compose.shared.TmDevice
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -89,11 +89,14 @@ class GameTimer {
 
     class Timer(var gt: MutableState<GameTimer.GameTime>,
                         var running: MutableState<Boolean> = mutableStateOf(false),
-                        var onFinished: () -> Unit = {}){
+                        var onFinished: () -> Unit = {},
+                        var onMinute:(seconds: Int) -> Unit = {}){
 
         private var runningThread: Thread? = null;
 
         private var startTime = LocalDateTime.now();
+
+        private var device: TmDevice = TmDevice()
 
         fun start(){
             startTime = LocalDateTime.now();
@@ -109,6 +112,7 @@ class GameTimer {
                         secondsBetween.toInt()
                     )
                     running.value = gt.value.isRunning()
+                    vibrate( gt.value.seconds,onMinute )
                     Thread.sleep( sleep );
 
                     if( secondsBetween > gt.value.seconds ){
@@ -119,6 +123,12 @@ class GameTimer {
                 }
             }
             this.runningThread!!.start();
+        }
+
+        private fun vibrate(seconds: Int, onMinute: (seconds: Int) -> Unit) {
+            if( (seconds % 60) == 0 ){
+                onMinute( seconds )
+            }
         }
 
         fun reset(){

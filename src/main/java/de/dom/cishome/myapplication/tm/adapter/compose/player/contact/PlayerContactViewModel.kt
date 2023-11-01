@@ -1,5 +1,6 @@
-package de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.model
+package de.dom.cishome.myapplication.tm.adapter.compose.player.contact
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -26,9 +27,14 @@ class PlayerContactViewModel : ViewModel() {
     }
 
     fun addDetail( playerId: String, detail: PlayerContactDetail) {
-            updateRepo.create( playerId , detail  ){
-                this.load(playerId = playerId)
-            }
+        if( playerId.isBlank() ){
+            Log.e("addDetail" , "Player id is empty")
+            return;
+        }
+
+        updateRepo.create( playerId , detail  ){
+            this.load(playerId = playerId)
+        }
     }
 
 

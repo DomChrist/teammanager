@@ -6,7 +6,7 @@ import de.dom.cishome.myapplication.tm.application.domain.player.service.NewPlay
 
 interface RegisterPlayerUseCase{
 
-    fun registerPlayer( cmd: NewPlayerDomainCommand): Player
+    fun registerPlayer( cmd: NewPlayerDomainCommand , onSuccess: () -> Unit = {}): Player
 
     fun addContactPerson( playerId: String , contactId: String )
 

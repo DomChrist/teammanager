@@ -40,6 +40,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import de.dom.cishome.myapplication.compose.player.service.Player
 import de.dom.cishome.myapplication.compose.player.service.PlayerService
+import de.dom.cishome.myapplication.tm.application.domain.contactperson.model.ContactModel
 import de.dom.cishome.myapplication.tm.application.domain.player.service.NewPlayerDomainCommand
 import de.dom.cishome.myapplication.tm.application.port.`in`.contactperson.CreateContactPersonCommand
 import java.lang.Exception
@@ -58,8 +59,7 @@ fun NewPlayerPage( playerService: PlayerService, nav: NavController){
         remember { mutableStateOf(TextFieldValue()) },
         remember { mutableStateOf(TextFieldValue()) },
         remember { mutableStateOf(LocalDate.now()) },
-        remember { mutableStateOf(TextFieldValue()) },
-        remember { mutableStateOf(TextFieldValue()) },
+        remember { mutableStateOf(mutableListOf()) },
         remember { mutableStateOf(false) },
         remember { mutableStateOf(TextFieldValue()) }
         )
@@ -116,8 +116,6 @@ private fun Body( playerService: PlayerService, nav: NavController, cmd: NewPlay
                     Column() {
                         OutlinedCard(modifier = colMod) {
                             Column( modifier = colMod) {
-                                RowField(name = "Description", input = cmd.contactDescription)
-                                RowField(name = "Handynummer", input = cmd.contactPhone)
                             }
                         }
                         Row(){
@@ -201,8 +199,7 @@ data class NewPlayerCommand(
     var givenName: MutableState<TextFieldValue>,
     var familyName: MutableState<TextFieldValue>,
     var jahrgang: MutableState<LocalDate>,
-    var contactDescription: MutableState<TextFieldValue>,
-    var contactPhone: MutableState<TextFieldValue>,
+    var contacts: MutableState<MutableList<ContactModel>>,
     var trial: MutableState<Boolean>,
     var team: MutableState<TextFieldValue>,
     var step: MutableState<Int> = mutableStateOf(0)
@@ -223,11 +220,6 @@ data class NewPlayerCommand(
         )
     }
 
-    fun toContactDomainCommand(): CreateContactPersonCommand {
-        return CreateContactPersonCommand( forPlayer = "" , givenName = this.givenName.value.text ,
-            familyName = this.familyName.value.text,
-            contactNumber = this.contactPhone.value.text)
-    }
 
     fun dec() {
         this.step.value = this.step.value.dec();

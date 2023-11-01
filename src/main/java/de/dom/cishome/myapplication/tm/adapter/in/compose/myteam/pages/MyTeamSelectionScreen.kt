@@ -27,6 +27,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.dom.cishome.myapplication.compose.shared.TmColors
@@ -52,7 +54,7 @@ class MyTeamSelectionScreen() {
         } else {
             content( teams.value , clicks ){
                 this.app.select( it );
-                clicks.navTo( "myteams/teams/team?team=${it.label}" )
+                clicks.navTo( "myteams/teams/team?team=${it.id}" )
             };
         }
     }
@@ -92,7 +94,11 @@ class MyTeamSelectionScreen() {
             Row(modifier= Modifier
                 .padding(15.dp)
                 .fillMaxWidth()){
-                Text( modifier=Modifier.fillMaxWidth(), text = t.label , textAlign = TextAlign.Center , fontWeight = FontWeight.Bold)
+                Text( modifier=Modifier.fillMaxWidth(),
+                    text = t.label ,
+                    textAlign = TextAlign.Center ,
+                    fontSize= TextUnit(4.4f , TextUnitType.Em),
+                    fontWeight = FontWeight.Bold)
             }
         }
     }

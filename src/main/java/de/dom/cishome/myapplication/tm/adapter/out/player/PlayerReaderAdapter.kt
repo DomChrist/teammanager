@@ -1,10 +1,10 @@
 package de.dom.cishome.myapplication.tm.adapter.out.player
 
 import android.content.Context
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerListFilter
+import de.dom.cishome.myapplication.tm.adapter.compose.player.shared.PlayerListFilter
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayerContactDetail
-import de.dom.cishome.myapplication.tm.application.port.out.PlayerFilter
+import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayersTeamModel
 import de.dom.cishome.myapplication.tm.application.port.out.PlayerReaderPort
 
 
@@ -17,11 +17,11 @@ class PlayerReaderAdapter constructor( val ctx: Context ,
         TODO("Not yet implemented")
     }
 
-    override fun readAll(f: PlayerListFilter, onSuccess: (list: List<Player>) -> Unit) {
+    override fun readAll(f: PlayerListFilter, onSuccess: (response: PlayersTeamModel ) -> Unit) {
         this.api.playersInTeam(
             f.value,
-            onSuccess = { onSuccess(it.map { p -> p.map() }) },
-            onError = { onSuccess(this.file.players()) }
+            onSuccess = { onSuccess( PlayersTeamModel(200,null,it.map { p -> p.map() }) ) },
+            onError = { onSuccess(PlayersTeamModel(400,null, listOf())) }
             )
     }
 

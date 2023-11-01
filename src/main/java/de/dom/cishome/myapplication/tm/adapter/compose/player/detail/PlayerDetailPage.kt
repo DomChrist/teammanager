@@ -1,6 +1,12 @@
-package de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages
+package de.dom.cishome.myapplication.tm.adapter.compose.player.detail
 
+import android.content.Context
+import android.net.Uri
 import android.os.Environment
+import android.os.FileUtils
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,8 +18,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AssistChip
@@ -27,11 +35,13 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,6 +57,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
+import androidx.core.net.toFile
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import de.dom.cishome.myapplication.R
@@ -56,66 +69,54 @@ import de.dom.cishome.myapplication.compose.shared.PlayerFileHelper
 import de.dom.cishome.myapplication.compose.shared.TmColors
 import de.dom.cishome.myapplication.compose.shared.TmDeviceShare
 import de.dom.cishome.myapplication.compose.shared.shotPlayerImage
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.model.PlayerViewModel
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.DefaultClickModel
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import java.io.File
+import java.io.FileOutputStream
 import java.lang.Exception
+import java.nio.file.Files
 import java.time.LocalDate
 
+class PlayerDetailPage( val playerId: String , val defaultClickModel: DefaultClickModel) {
 
-class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
-
-    private var model: PlayerViewModel? = null;
-
-    private var onTrialParticipationUpdate: ()->Unit = {}
+    private lateinit var viewModel: PlayerDetailViewModel;
 
     @Composable
-    fun Screen(
-        playerId: String,
-        model: PlayerViewModel = viewModel( factory = PlayerViewModel.PlayerViewFactory(playerId,
-            LocalContext.current ) )
-    ){
-        this.model = model;
-        var playerState = remember{ mutableStateOf<Player?>(null) }
-        this.model.let {
-            it!!.player.observeForever { playerState.value = it }
+    fun Screen( view: PlayerDetailViewModel = viewModel() ){
+        this.viewModel = view;
+        val model = remember{ mutableStateOf<Player?>(null) }
+        view.playerLifecycle.observeForever { model.value = it.p }
+
+        LaunchedEffect(key1 = Unit){
+            view.load( playerId )
         }
 
-        if( playerState.value != null ){
-            var player = playerState.value!!;
-            val clickModel = this.model!!.clickModel(defaultClickModel);
-
-            val navItems = model.navItemsBy(player, clickModel)
-            layout( player , clickModel, navItems )
+        if( view.isSuccessful() ){
+            val clickModel = view.clickModel(this.defaultClickModel);
+            val navItems = view.navItemsBy(model.value!!, clickModel)
+            layout( view.playerLifecycle.value!!.p!! , clickModel, navItems )
         } else {
             Tm.components().Loading()
         }
     }
 
-    private fun initClickModel(counter: MutableState<Int>) {
-        val clickModel = this.model!!.clickModel(defaultClickModel);
-        onTrialParticipationUpdate = {
-            this.model?.trialParticipation( counter.value )
-        }
-    }
-
 
     @Composable
-    fun layout( p: Player , clicks: PlayerDetailClick, items: List<PlayerNavItem> ){
+    fun layout(p: Player, clicks: PlayerDetailClick, items: List<PlayerNavItem> ){
         var counter = remember{ mutableStateOf(p.state.trial?.trialCount ?: 0) }
 
-        initClickModel( counter )
+        //initClickModel( counter )
+
 
         if( p.isTrial() ){
             BottomSheetScaffold( sheetContent = {
-                BottomSheet( counter )
+                TrialPlayerBottomSheet( p.state.trial?.trialCount ?: 0 , p , clicks.onTrialParticipation )
             }) {
                 Scaffold( topBar = {header( clicks.back )} ) {
                     Box(Modifier.padding(it)){
                         PlayerBox(p, listOf())
-                        PlayerDetail(p = p, items = items)
+                        PlayerDetail(p = p, items = items , clicks=clicks)
                     }
                 }
             }
@@ -123,15 +124,31 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
             Scaffold( topBar = {header( clicks.back )} ) {
                 Box(Modifier.padding(it)){
                     PlayerBox(p, listOf())
-                    PlayerDetail(p = p, items = items)
+                    PlayerDetail(p = p, items = items , clicks)
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun CardLayout() {
+
+        Row(modifier=Modifier.padding(0.dp , 110.dp)){
+            Column {
+                Surface(modifier=Modifier.size(70.dp).padding(5.dp)
+                    .background(Color.Green)
+                    .border(2.dp , Color.Red , RoundedCornerShape(10.dp))) {
+                    Icon( Icons.Filled.Call , contentDescription = "")
+                    Text("Kontaktdaten")
                 }
             }
         }
 
     }
 
+
     @Composable
-    private fun PlayerDetail(p: Player, items: List<PlayerNavItem>) {
+    private fun PlayerDetail(p: Player, items: List<PlayerNavItem> , clicks: PlayerDetailClick) {
         var ctx = LocalContext.current;
         var COLORS = TmColors.App;
         var assistBox = Modifier
@@ -140,14 +157,17 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
 
         Box(Modifier.padding(5.dp , 150.dp)){
 
+
             Row(){
                 Column(modifier = Modifier.weight(2f)) {
                     var t = if( p.team == null) "N.A." else p.team.uppercase();
-                    AssistChip( modifier = assistBox, onClick = {  }, label = { Text("${t}" , textAlign = TextAlign.Center) } )
+                    //TODO TeamName
+                    //AssistChip( modifier = assistBox, onClick = {  }, label = { Text("${t}" , textAlign = TextAlign.Center) } )
                 }
                 Column(modifier = Modifier.weight(5f)) {}
                 Column(modifier = Modifier.weight(2f)) {
-                    AssistChip( modifier = assistBox, onClick = { TmDeviceShare.share(ctx,p.fullName()) }, label = { Icon(Icons.Filled.Share,"") } )
+                    AssistChip( modifier = assistBox, onClick = { TmDeviceShare.share(ctx,p.fullName()) }, label = { Icon(
+                        Icons.Filled.Share,"") } )
                 }
             }
 
@@ -162,6 +182,11 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
                     Row(){
                         Divider()
                     }
+                    if( p.isTrial() ){
+                        Row{
+                            ActivatePlayerButton { clicks.onActivate(p) }
+                        }
+                    }
                     Row(){
                         PlayerDetailNavigation(items =  items )
                     }
@@ -175,6 +200,7 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
     @Composable
     private fun PlayerBox(p: Player, items: List<PlayerNavItem>){
         var playerState = remember{ mutableStateOf(p) }
+        var playerStateCounter = remember{ mutableIntStateOf(0) };
         var max = Modifier.fillMaxWidth();
         var colors = AssistChipDefaults.assistChipColors(containerColor = TmColors.App.primary , labelColor = TmColors.App.primaryText)
         var assistBox = Modifier
@@ -185,12 +211,16 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
             Row(max) {
                 Column(Modifier.weight(2f)) {
                     Row {
-                        AssistChip( modifier=assistBox, colors=colors, onClick = {  }, label = {Text(text = "${p.dateOfBirth?.year}")} )
+                        AssistChip( modifier=assistBox, colors=colors, onClick = {  }, label = { Text(text = "${p.dateOfBirth?.year}") } )
                     }
                 }
                 Column(Modifier.weight(5f)) {
                     Row(modifier = Modifier.padding(0.dp , 25.dp)){
-                        PlayerImage(p = p , onNewImage = {playerState.value = p})
+                        PlayerImage(p = p , onNewImage = {
+                            playerState.value = p
+                            playerStateCounter.value = playerStateCounter.value.inc();
+                            viewModel.updateImage(it);
+                        })
                     }
                 }
                 Column(Modifier.weight(2f)) {
@@ -231,8 +261,8 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
     }
 
     @Composable
-    private fun BottomSheet(counter: MutableState<Int>) {
-
+    private fun TrialPlayerBottomSheet(counter: Int, p: Player , onTrialParticipationUpdate: ( count: Int, player: Player )->Unit) {
+        var counterState = remember{ mutableStateOf(counter) }
         Box( modifier = Modifier.padding(0.dp , 15.dp) ) {
             Row(){
                 Column() {
@@ -240,21 +270,21 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
                         Column(modifier = Modifier.weight(1f)) {
                             FilledIconButton( modifier = Modifier
                                 .padding(5.dp, 0.dp)
-                                .fillMaxWidth(), onClick = { counter.value = counter.value.dec() }) {
+                                .fillMaxWidth(), onClick = { counterState.value = counterState.value.dec() }) {
                                 Text(" - ")
                             }
                         }
                         Column(modifier = Modifier.weight(3f)) {
                             Button( modifier = Modifier
                                 .align(Alignment.CenterHorizontally)
-                                .fillMaxWidth(), onClick = { counter.value = counter.value.inc() }) {
-                                Text(text = "# ${counter.value}")
+                                .fillMaxWidth(), onClick = { counterState.value = counterState.value.inc() }) {
+                                Text(text = "# ${counterState.value}")
                             }
                         }
                         Column(modifier = Modifier.weight(1f)) {
                             FilledIconButton( modifier = Modifier
                                 .padding(5.dp, 0.dp)
-                                .fillMaxWidth(), onClick = { counter.value = counter.value.inc() }) {
+                                .fillMaxWidth(), onClick = { counterState.value = counterState.value.inc() }) {
                                 Text(" + ")
                             }
                         }
@@ -266,7 +296,7 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
                             }
                         }
                         Column(modifier = Modifier.weight(1f)) {
-                            Button( modifier = Modifier.fillMaxWidth(), onClick = onTrialParticipationUpdate ) {
+                            Button( modifier = Modifier.fillMaxWidth(), onClick = { onTrialParticipationUpdate(counterState.value , p) } ) {
                                 Text("SPEICHERN")
                             }
                         }
@@ -279,11 +309,26 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
     }
 
     @Composable
-    fun PlayerImage( p: Player? , onNewImage: ()->Unit = {} ){
-        var id = p?.id ?: "unkown";
-        var c = LocalContext.current;
+    fun PlayerImage( p: Player? , onNewImage: ( f: File )->Unit = {} ){
 
-        var file: File? = null;
+        val playerId = p?.id ?: "temp";
+        val ctx = LocalContext.current;
+        var file: File = File(PlayerFileHelper().playerDir(playerId),"main.jpg"); File( Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${playerId}/main.jpg" )
+        val uri = ComposeFileProvider.getImageUri( ctx , playerId = playerId );
+
+        val result =
+            rememberLauncherForActivityResult(ActivityResultContracts.TakePicture(), onResult = {
+                Log.i("ActivityResult","shot shot shoooooooo!")
+                ctx.contentResolver.openInputStream(uri).let {
+                    val readAllBytes = it!!.readBytes()
+                    it!!.close();
+                    PlayerFileHelper().copy(readAllBytes,file)
+                    onNewImage( file );
+                };
+            })
+
+        var id = p?.id ?: "unkown";
+
         val playerImage: Boolean = if( p != null ){
             try{
                 file = File(PlayerFileHelper().playerDir(id),"main.jpg"); File( Environment.getExternalStoragePublicDirectory("documents").absolutePath + "/tm/players/${id}/main.jpg" )
@@ -305,7 +350,10 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(color = Color.White.copy(alpha = 0.6f))
-                .clickable { shotPlayerImage(p!!.id, c, onNewImage) }
+                .clickable {
+                    result.launch( uri )
+                    //shotPlayerImage(p!!.id, c, onNewImage)
+                }
                 .padding(5.dp)) {
 
             if( playerImage ){
@@ -313,8 +361,7 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
                     model = file,
                     placeholder = painterResource( R.drawable.club ),
                     contentScale = ContentScale.FillBounds,
-                    modifier = m
-                    ,
+                    modifier = m,
                     contentDescription = null,
                 )
             } else {
@@ -341,30 +388,15 @@ class PlayerDetailPage( private val defaultClickModel: DefaultClickModel ) {
             border = AssistChipDefaults.assistChipBorder(borderColor = Color.Green)
         }
         var txt = if(p.isTrial()) "TRIAL" else "AKTIV";
-        AssistChip( modifier=modifier, colors=trialChipColor, border = border, onClick = {  }, label = {Text(text = txt)} )
+        AssistChip( modifier=modifier, colors=trialChipColor, border = border, onClick = {  }, label = { Text(text = txt) } )
     }
+
 
 }
 
-
-
-
-
-
-
-
-
-
-data class PlayerDetailClick( var back: ()->Unit ,
-                              var navTo: (r: String)->Unit,
-                              var onActivate: ( p: Player )->Unit = {},
-                              var onTrialParticipation: () -> Unit = {}
-);
-
-
-@Composable
 @Preview
-fun PlayerDetailPagePreview(){
+@Composable
+private fun preview(){
     var clicks = PlayerDetailClick({},{});
     var player = Player("1234","Dominik","Christ" , LocalDate.of(1988,10,1) , "Bambini");
     var items = listOf<PlayerNavItem>(
@@ -375,14 +407,29 @@ fun PlayerDetailPagePreview(){
             clicks.navTo("player/detail/${player.id}/contacts")
         })
     )
-    PlayerDetailPage( DefaultClickModel() ).layout(
-        player,
-        clicks,
-        items = items,
-    )
-
+    PlayerDetailPage("1234" , DefaultClickModel({},{}))
+        .layout(p = player, clicks = clicks, items = items)
 }
 
 
-
-
+class ComposeFileProvider : FileProvider(
+    R.xml.provider_paths
+) {
+    companion object {
+        fun getImageUri(context: Context , playerId: String): Uri {
+            val directory = File(context.cacheDir, "images/cache")
+            directory.mkdirs()
+            val file = File.createTempFile(
+                "selected_image_",
+                ".jpg",
+                directory
+            )
+            val authority = context.packageName + ".fileprovider"
+            return getUriForFile(
+                context,
+                authority,
+                file,
+            )
+        }
+    }
+}

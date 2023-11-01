@@ -1,7 +1,9 @@
 package de.dom.cishome.myapplication
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -41,6 +43,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import de.dom.cishome.myapplication.compose.club.clubGraph
 import de.dom.cishome.myapplication.compose.shared.TmColors
 import de.dom.cishome.myapplication.compose.team.teamGraph
@@ -50,10 +53,11 @@ import de.dom.cishome.myapplication.config.security.SecurityAdapter
 import de.dom.cishome.myapplication.config.security.SecurityComponents
 import de.dom.cishome.myapplication.config.security.SecurityIdentity
 import de.dom.cishome.myapplication.config.security.UserIdentity
+import de.dom.cishome.myapplication.config.settings.properties.PropertyPage
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.competitionGraph
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.launch.pages.HomeScreen
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.myteam.myTeamGraph
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.playerGraph
+import de.dom.cishome.myapplication.tm.adapter.routing.player.playerGraph
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.CommonComponents
 import de.dom.cishome.myapplication.tm.application.services.TeamApplicationService
 import de.dom.cishome.myapplication.ui.MainControl
@@ -68,16 +72,36 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_MODE_CHANGED);
+
         setContent {
             CDI.initialize( LocalContext.current )
             ConfigProperties.initialize( LocalContext.current )
             var identity: SecurityIdentity? = loggedInIdentity( intent );
+
+            if( !allPermissionsGranted() ){
+                var intent = Intent( this , InitializeActivity::class.java)
+                //this.startActivity( intent )
+            }
+
+
             if( (identity != null ) || !booleanResource(id = R.bool.auth_required)){
                 MyAppSurface(activity = this , identity!!)
             } else {
                 LoginScreen()
             }
         }
+    }
+
+
+    @Composable
+    private fun allPermissionsGranted(): Boolean {
+        var permission = rememberMultiplePermissionsState(permissions = listOf<String>(
+            Manifest.permission.VIBRATE,
+            Manifest.permission.CAMERA
+        ))
+        val allPermissionsGranted = permission.allPermissionsGranted;
+        return allPermissionsGranted;
     }
 
     @ExperimentalMaterialApi
@@ -150,11 +174,11 @@ class MainActivity : ComponentActivity() {
         mainControl: MainControl
     ) {
         val list = listOf<CommonComponents.CardMenuItem>(
-            CommonComponents.CardMenuItem("Verein", "club", R.drawable.clublogo),
+            //CommonComponents.CardMenuItem("Verein", "club", R.drawable.clublogo),
             //CommonComponents.CardMenuItem("Player" , "player", R.drawable.club),
             //CommonComponents.CardMenuItem("Turnier" , "competition", R.drawable.tuniert),
-            CommonComponents.CardMenuItem("Mein Team" , "myteam", R.drawable.member),
-            CommonComponents.CardMenuItem("Platz" , "platz", R.drawable.platz),
+            //CommonComponents.CardMenuItem("Mein Team" , "myteam", R.drawable.member),
+            //CommonComponents.CardMenuItem("Platz" , "platz", R.drawable.platz),
         )
 
         ModalDrawerSheet {
@@ -204,6 +228,10 @@ class MainActivity : ComponentActivity() {
 
             composable("home"){
                 HomeScreen().Screen( mainControl )
+            }
+
+            composable("settings"){
+                PropertyPage( mainControl ).Screen();
             }
 
             clubGraph(navController , mainControl)

@@ -14,10 +14,9 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import de.dom.cishome.myapplication.compose.team.model.Team
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.myteam.model.MyTeamViewModel
+import de.dom.cishome.myapplication.tm.adapter.compose.player.overview.PlayerOverviewPage
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.myteam.pages.MyTeamSelectionScreen
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.myteam.pages.MyTeamWelcomePage
-import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.PlayerOverviewPage
 import de.dom.cishome.myapplication.ui.MainControl
 import java.lang.Exception
 
@@ -47,7 +46,8 @@ fun NavGraphBuilder.myTeamGraph(nav: NavController, mainControl: MainControl){
         }
 
         composable(route = "myteams/teams/team/players"){
-            PlayerOverviewPage().Screen( clicks = PlayerOverviewPage.PlayerOverviewClick.clicks(nav))
+
+            //PlayerOverviewPage().Screen( clicks = PlayerOverviewPage.PlayerOverviewClick.clicks(nav))
         }
 
 

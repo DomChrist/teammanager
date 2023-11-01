@@ -9,6 +9,9 @@ import android.os.VibrationEffect
 import android.os.VibratorManager
 import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import java.io.File
 import java.util.Objects
@@ -59,6 +62,8 @@ class TmDevice {
 fun shotPlayerImage( id: String, context: Context, onNewImage:()->Unit={}) {
     val values = ContentValues()
 
+
+
     values.put(MediaStore.Images.Media.TITLE, "New Picture")
     values.put(MediaStore.Images.Media.DESCRIPTION, "From the Camera")
 
@@ -79,6 +84,7 @@ fun shotPlayerImage( id: String, context: Context, onNewImage:()->Unit={}) {
 
     cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, image_uri)
     var a = context.startActivity(cameraIntent);
+
 
     Log.i("image" , a.toString());
     onNewImage();

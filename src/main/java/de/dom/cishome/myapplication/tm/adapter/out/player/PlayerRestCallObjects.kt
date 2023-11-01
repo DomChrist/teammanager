@@ -1,6 +1,8 @@
 package de.dom.cishome.myapplication.tm.adapter.out.player
 
+import de.dom.cishome.myapplication.tm.adapter.out.myteam.TeamResponse
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
+import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayersTeamModel
 import java.time.LocalDate
 
 data class PlayerApiObject(val id: String,
@@ -32,6 +34,16 @@ data class PlayerApiObject(val id: String,
 
 }
 
+data class TeamPlayerResponse( var meta: TeamResponse, var list: List<PlayerApiObject> ){
+
+    fun toModel(): PlayersTeamModel{
+        var team = PlayersTeamModel.Team( meta.id , meta.label , meta.ageGroup )
+        var players = list.map { it.map() }
+        return PlayersTeamModel( 200, team , players )
+    }
+
+}
+
 data class PlayerMemberState( val trial:  TrialResponse? , val member: Boolean?  ) {
 
 
@@ -42,3 +54,9 @@ data class PlayerMemberState( val trial:  TrialResponse? , val member: Boolean? 
 }
 
 data class PlayerContactResponse( val id: String , val description: String , val value: String ){}
+
+
+class PlayerRequest(){
+    data class PlayerMembershipRequest( var localDate: LocalDate = LocalDate.now() )
+
+}

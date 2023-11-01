@@ -27,6 +27,7 @@ class CompetitionRepository : CompetitionReader , CompetitionWriter {
             .filter { it.exists() }
             .map {
                 var json = h.read(File(it, "competition.json"))
+                Log.d("CompetitionRepository.readAll" , json)
                 GsonUtils.mapper().fromJson(json, TeamCompetitionModel::class.java)
             }
             .filter { it.isTeam(team) }

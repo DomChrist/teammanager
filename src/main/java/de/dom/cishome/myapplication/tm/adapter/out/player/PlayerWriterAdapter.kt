@@ -5,6 +5,7 @@ import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayerContactDetail
 import de.dom.cishome.myapplication.tm.application.port.out.CreatePlayerPort
 import de.dom.cishome.myapplication.tm.application.port.out.UpdatePlayerPort
+import java.io.File
 
 class PlayerWriterAdapter(
 
@@ -28,6 +29,10 @@ class PlayerWriterAdapter(
     }
 
     override fun create(playerId: String, newContact: PlayerContactDetail, onSuccess: () -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateImage(playerId: String, imageFile: File) {
         TODO("Not yet implemented")
     }
 
