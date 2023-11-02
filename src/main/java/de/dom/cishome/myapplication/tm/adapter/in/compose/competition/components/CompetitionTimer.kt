@@ -79,11 +79,9 @@ private fun start(
             if( d.seconds == 0L ){
                 TmDevice.vibrate(ctx)
             }else if( (d.seconds % 60) == 0L ){
-                Thread {
-                    TmDevice.vibrate( ctx , d.toMinutes().toInt()-1 )
-                }.start()
+                TmDevice.vibrate(ctx)
             } else if( d.toMinutes() > 10){
-                TmDevice.vibrate(ctx , 5);
+                TmDevice.vibrate(ctx)
                 running.value = false;
             }
 

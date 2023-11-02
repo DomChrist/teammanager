@@ -112,7 +112,7 @@ class GameTimer {
                         secondsBetween.toInt()
                     )
                     running.value = gt.value.isRunning()
-                    vibrate( gt.value.seconds,onMinute )
+                    vibrate( secondsBetween.toInt(),onMinute )
                     Thread.sleep( sleep );
 
                     if( secondsBetween > gt.value.seconds ){

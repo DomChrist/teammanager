@@ -43,15 +43,19 @@ class PlayerDetailViewModel: ViewModel() {
             if( p.isTrial() ){
 
             } else {
+                /*
                 add(
                     PlayerNavItem("Spielerpass" , click = {} )
                 )
+                 */
+                /*
                 add(
                     PlayerNavItem("Spieler entfernen" , "" , click =  {
                         //deletePlayer.delete( p );
                         clicks.back()
                     })
                 )
+                 */
             }
 
         }

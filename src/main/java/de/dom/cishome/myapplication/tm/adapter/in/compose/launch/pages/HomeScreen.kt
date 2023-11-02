@@ -132,11 +132,13 @@ class HomeScreen {
                 icon = { Icon(imageVector = Icons.Filled.Menu, tint = TmColors.secondaryColor, contentDescription = "Localized description") },
                 label = { Text(text="HOME" , color = TmColors.secondaryColor) }
             )
+            /*
             NavigationBarItem(selected = false,
                 onClick = {  },
                 icon = { Icon(Icons.Filled.Person, tint = TmColors.secondaryColor, contentDescription = "Localized description") },
                 label = { Text("PROFILE" , color = TmColors.secondaryColor) }
             )
+             */
             NavigationBarItem(selected = false,
                 onClick = { nav.navTo("settings") },
                 icon = { Icon(Icons.Filled.Settings, tint= TmColors.secondaryColor, contentDescription = "Localized description") },

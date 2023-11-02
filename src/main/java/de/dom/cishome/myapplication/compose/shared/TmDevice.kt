@@ -31,13 +31,14 @@ class TmDevice {
             ctx.startActivity( shareIntent );
         }
 
-        fun vibrate( ctx: Context ){
+        fun vibrate( ctx: Context , millis: Long = 500 ){
             var v = ctx.getSystemService( Context.VIBRATOR_MANAGER_SERVICE ) as VibratorManager
-            var c = CombinedVibration.startParallel().addVibrator( 0 , VibrationEffect.createOneShot(500 ,255) ).combine()
-            v.vibrate( c );
+            v.defaultVibrator.vibrate(VibrationEffect.createOneShot(millis,255))
+            //var c = CombinedVibration.startParallel().addVibrator( 0 , VibrationEffect.createOneShot(millis ,255) ).combine()
+            //v.vibrate( c );
         }
 
-        fun vibrate( ctx: Context, repeat: Int ){
+        fun vibrate( ctx: Context, millis: Int = 500, repeat: Int ){
             var v = ctx.getSystemService( Context.VIBRATOR_MANAGER_SERVICE ) as VibratorManager
             var c = CombinedVibration.startParallel().addVibrator( 0 , VibrationEffect.createOneShot(500 ,255) ).combine()
             for( i in repeat downTo 0 step 1){

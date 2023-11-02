@@ -201,6 +201,14 @@ class MainActivity : ComponentActivity() {
             }
             Divider()
             NavigationDrawerItem(
+                label = { Text(text = "SPIEL") },
+                selected = false,
+                onClick = {
+                    mainControl.navTo("competition/detail/free/game")
+                }
+            )
+            /*
+            NavigationDrawerItem(
                 label = { Text(text = "MyTeam Activity") },
                 selected = false,
                 onClick = {
@@ -210,6 +218,7 @@ class MainActivity : ComponentActivity() {
                     mainActivity.startActivity( intent )
                 }
             )
+             */
 
 
         }

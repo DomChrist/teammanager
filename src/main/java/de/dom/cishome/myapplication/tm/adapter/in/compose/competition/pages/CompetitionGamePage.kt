@@ -77,7 +77,8 @@ class CompetitionGamePage {
         val clicks = Clicks( {
             this.timer = GameTimer.Timer( this.screenTime , this.running , onMinute = {
                 Thread{
-                    TmDevice.vibrate( ctx , (it % 60) +1 )
+                    val time = (it / 60) + 1;
+                    TmDevice.vibrate(ctx , (time * 1000).toLong())
                 }.start()
             });
             this.goalsTeam1.value = 0;
