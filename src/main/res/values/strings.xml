@@ -1,6 +1,9 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Tus Kettig</string>
+    <!--
     <string name="server">http://macbook-pro-von-dominik.local</string>
+    -->
+    <string name="server">http://cis-home.selfhost.eu</string>
     <integer name="server_port">8071</integer>
     <bool name="auth_required">true</bool>
 </resources>
