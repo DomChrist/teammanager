@@ -60,3 +60,16 @@ class PlayerRequest(){
     data class PlayerMembershipRequest( var localDate: LocalDate = LocalDate.now() )
 
 }
+
+data class PlayerNoteRequest( val title: String, val description: String )
+
+data class PlayerNoteResponse( val playerId: String , val notes: List<PlayerNoteResponse.PlayerNote> ){
+
+    data class PlayerNote( val id: String, val title: String, val description: String ){
+
+    }
+
+}
+
+data class CreateNoteRequest( val title: String , val txt: String ){
+}

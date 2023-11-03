@@ -39,6 +39,7 @@ class PlayerDetailViewModel: ViewModel() {
                     clicks.navTo("player/detail/${p.id}/contacts")
                 })
             )
+            add( PlayerNavItem("Notizen" , click =  { clicks.navTo("player/detail/${p.id}/notes") }) )
 
             if( p.isTrial() ){
 
