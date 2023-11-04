@@ -1,6 +1,5 @@
 package de.dom.cishome.myapplication.tm.adapter.compose.player.overview
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
@@ -35,11 +35,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import de.dom.cishome.myapplication.compose.player.model.player.PlayerRepository
 import de.dom.cishome.myapplication.compose.player.pages.NewPlayerCommand
 import de.dom.cishome.myapplication.compose.shared.TmColors
 import de.dom.cishome.myapplication.compose.team.pages.NavBarItem
@@ -55,8 +56,10 @@ import de.dom.cishome.myapplication.tm.adapter.compose.player.shared.PlayerListF
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.AddPlayerScreen
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.CommonComponents
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.DefaultClickModel
+import de.dom.cishome.myapplication.tm.adapter.out.PlayerPersistenceAdapter
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayersTeamModel
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class PlayerOverviewPage(private val criteria: PlayerListFilter, private val defaultClickModel: DefaultClickModel ) {
@@ -66,12 +69,15 @@ class PlayerOverviewPage(private val criteria: PlayerListFilter, private val def
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun Screen( view: PlayerOverviewViewModel = viewModel() ){
+        val coroutineScope = rememberCoroutineScope()
 
         val workingModel = remember{ mutableStateOf<PlayersTeamModel>( view.model.value ?: PlayersTeamModel(0 , null , listOf()) ) }
         val showAddDialog = remember { mutableStateOf(false) }
         view.model.observeForever { workingModel.value = it }
         onLoad = {
-            view.load(criteria)
+            coroutineScope.launch {
+                view.load(criteria)
+            }
         }
 
         LaunchedEffect(key1 = Unit ){
@@ -86,10 +92,11 @@ class PlayerOverviewPage(private val criteria: PlayerListFilter, private val def
                     onDismissRequest = {showAddDialog.value = false} ,  );
             }
 
-            layout(playersTeamModel = workingModel.value,
-                clicks = PlayerOverviewClicks({ showAddDialog.value = true },{ defaultClickModel.navBack() },{
-                defaultClickModel.navTo("player/detail/${it.id}")
-                }),
+            layout(
+                playersTeamModel = workingModel.value,
+                clicks = PlayerOverviewClicks({ showAddDialog.value = true },{ defaultClickModel.navBack() }, {
+                defaultClickModel.navTo("player/detail/${it.id}") }),
+                onReload = { onLoad() }
             )
         } else if( workingModel.value != null && workingModel.value.onFailure() ){
             defaultClickModel.navBack()
@@ -98,14 +105,38 @@ class PlayerOverviewPage(private val criteria: PlayerListFilter, private val def
         }
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun layout( playersTeamModel: PlayersTeamModel, clicks: PlayerOverviewClicks) {
+    fun layout( playersTeamModel: PlayersTeamModel, clicks: PlayerOverviewClicks, onReload: ()->Unit = {}) {
+        val coroutineScope = rememberCoroutineScope()
+        var isRefreshing = remember { mutableStateOf(false) }
+        val pullRefreshState = rememberPullRefreshState(
+            refreshing = isRefreshing.value,
+            onRefresh = {
+                isRefreshing.value = true
+                coroutineScope.launch {
+                    onReload()
+                    isRefreshing.value = false
+                }
+            }
+        )
+
         Scaffold(
             topBar = {header( clicks.onBackClick )},
             bottomBar = { footer( { clicks.onPlayerAddClick() } ) },
             floatingActionButtonPosition = FabPosition.End,
             floatingActionButton = { PlayerFloatingButton( playersTeamModel.hasTeam() , clicks.onPlayerAddClick) },
-            content = { Box(modifier = Modifier.padding(it)) { content( playersTeamModel.players , clicks.onPlayerSelect )} }
+            content = {
+                Box(modifier = Modifier.padding(it).pullRefresh(pullRefreshState)  ) {
+                    content( playersTeamModel.players , clicks.onPlayerSelect )
+
+                    PullRefreshIndicator(
+                        refreshing = isRefreshing.value,
+                        state = pullRefreshState,
+                        modifier = Modifier.align(Alignment.TopCenter)
+                    )
+                }
+            }
         );
     }
 

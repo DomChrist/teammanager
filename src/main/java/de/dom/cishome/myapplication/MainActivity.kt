@@ -54,6 +54,7 @@ import de.dom.cishome.myapplication.config.security.SecurityComponents
 import de.dom.cishome.myapplication.config.security.SecurityIdentity
 import de.dom.cishome.myapplication.config.security.UserIdentity
 import de.dom.cishome.myapplication.config.settings.properties.PropertyPage
+import de.dom.cishome.myapplication.tm.adapter.compose.lab.labGraph
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.competition.competitionGraph
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.launch.pages.HomeScreen
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.myteam.myTeamGraph
@@ -207,6 +208,13 @@ class MainActivity : ComponentActivity() {
                     mainControl.navTo("competition/detail/free/game")
                 }
             )
+            NavigationDrawerItem(
+                label = { Text(text = "lab") },
+                selected = false,
+                onClick = {
+                    mainControl.navTo("lab")
+                }
+            )
             /*
             NavigationDrawerItem(
                 label = { Text(text = "MyTeam Activity") },
@@ -252,6 +260,8 @@ class MainActivity : ComponentActivity() {
             teamGraph(navController , TeamApplicationService.inject())
 
             myTeamGraph( nav = navController , mainControl = mainControl )
+
+            labGraph( navController , mainControl, )
         }
     }
 
