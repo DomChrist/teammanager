@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -35,9 +34,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.R
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,7 +49,6 @@ import de.dom.cishome.myapplication.tm.adapter.compose.player.shared.PlayerListF
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.player.pages.AddPlayerScreen
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.CommonComponents
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.DefaultClickModel
-import de.dom.cishome.myapplication.tm.adapter.out.player.PlayerMemberState
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayersTeamModel
 import java.time.LocalDate
@@ -117,38 +113,45 @@ class PlayerOverviewPage(private val criteria: PlayerListFilter, private val def
                 }
             }
 
-            var playerCurrentLetter: Char = ' ';
             when (tabIndex.value) {
                 0 -> {
-                    LazyColumn(modifier = Modifier.padding(PaddingValues(5.dp , 25.dp))){
-                        items( activePlayers.sortedBy { it.givenName } ){
-
-                            if( it.familyName.uppercase().toCharArray()[0] == playerCurrentLetter ){
-                                PlayerItemView( it , onPlayerSelect )
-                            } else {
-                                playerCurrentLetter = it.familyName.uppercase().toCharArray()[0];
-                                Row(){
-                                    Column(Modifier.weight(2f)){ Divider(Modifier.padding(0.dp,15.dp)) }
-                                    Column(Modifier.weight(1f)){ Text(text = "${playerCurrentLetter}" , modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontWeight = FontWeight.Bold, fontSize = TextUnit(5f,
-                                        TextUnitType.Em)
-                                    ) }
-                                    Column(Modifier.weight(8f)){ Divider(Modifier.padding(0.dp,15.dp)) }
-                                }
-                                PlayerItemView( it , onPlayerSelect )
-                            }
-
-                        }
-                    }
+                    PlayerLazyColumn(activePlayers , onPlayerSelect)
                 }
                 1 -> {
-                    LazyColumn(modifier = Modifier.padding(PaddingValues(5.dp , 25.dp))){
-                        items( trialPlayers ){
+                    PlayerLazyColumn(activePlayers = trialPlayers, onPlayerSelect = onPlayerSelect)
+                }
+            }
+        }
+
+    }
+
+    @Composable
+    private fun PlayerLazyColumn(activePlayers: List<Player>, onPlayerSelect: (p: Player) -> Unit){
+        var playerCurrentLetter: Char = ' ';
+        activePlayers.withIndex().mapIndexed { index, indexedValue ->  }
+        val map = activePlayers.groupBy { p -> p.familyName.uppercase().get(0) }.toSortedMap();
+        val l = 'A' .. 'Z';
+            LazyColumn(modifier = Modifier.padding(PaddingValues(5.dp , 25.dp))){
+                l.toList().forEach {
+
+                    items( map.get(it)?.toList() ?: listOf() ){
+                        if( it.familyName.uppercase().toCharArray()[0] == playerCurrentLetter ){
+                            PlayerItemView( it , onPlayerSelect )
+                        } else {
+                            playerCurrentLetter = it.familyName.uppercase().toCharArray()[0];
+                            Row(){
+                                Column(Modifier.weight(2f)){ Divider(Modifier.padding(0.dp,15.dp)) }
+                                Column(Modifier.weight(1f)){ Text(text = "${playerCurrentLetter}" , modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontWeight = FontWeight.Bold, fontSize = TextUnit(5f,
+                                    TextUnitType.Em)
+                                ) }
+                                Column(Modifier.weight(8f)){ Divider(Modifier.padding(0.dp,15.dp)) }
+                            }
                             PlayerItemView( it , onPlayerSelect )
                         }
                     }
                 }
+
             }
-        }
 
     }
 
@@ -264,7 +267,16 @@ fun preview(){
 
     val players = listOf<Player>(
         Player("1234" , "Max" , "Mustermann" , LocalDate.of(2018,1,1) , "Bambini" , state = Player.MemberState(null,
+            Player.MemberState.Active(true)) ),
+        Player("1234" , "Johannes" , "Christ" , LocalDate.of(2018,1,1) , "Bambini" , state = Player.MemberState(null,
+            Player.MemberState.Active(true)) ),
+        Player("1234" , "Max" , "Mustermann" , LocalDate.of(2018,1,1) , "Bambini" , state = Player.MemberState(null,
+            Player.MemberState.Active(true)) ),
+        Player("1234" , "Dominik" , "Christ" , LocalDate.of(2018,1,1) , "Bambini" , state = Player.MemberState(null,
+            Player.MemberState.Active(true)) ),
+        Player("1234" , "Dominik" , "Dominik" , LocalDate.of(2018,1,1) , "Bambini" , state = Player.MemberState(null,
             Player.MemberState.Active(true)) )
+
     )
 
     PlayerOverviewPage( PlayerListFilter.byTeam("1234") , DefaultClickModel())
