@@ -1,5 +1,6 @@
 package de.dom.cishome.myapplication.tm.adapter.compose.player.overview
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,10 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -31,9 +35,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -55,13 +61,18 @@ import java.time.LocalDate
 
 class PlayerOverviewPage(private val criteria: PlayerListFilter, private val defaultClickModel: DefaultClickModel ) {
 
+    var onLoad: ()->Unit = {}
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun Screen( view: PlayerOverviewViewModel = viewModel() ){
 
         val workingModel = remember{ mutableStateOf<PlayersTeamModel>( view.model.value ?: PlayersTeamModel(0 , null , listOf()) ) }
         val showAddDialog = remember { mutableStateOf(false) }
         view.model.observeForever { workingModel.value = it }
+        onLoad = {
+            view.load(criteria)
+        }
 
         LaunchedEffect(key1 = Unit ){
             view.load( criteria )
@@ -75,9 +86,11 @@ class PlayerOverviewPage(private val criteria: PlayerListFilter, private val def
                     onDismissRequest = {showAddDialog.value = false} ,  );
             }
 
-            layout(playersTeamModel = workingModel.value, clicks = PlayerOverviewClicks({ showAddDialog.value = true },{ defaultClickModel.navBack() },{
+            layout(playersTeamModel = workingModel.value,
+                clicks = PlayerOverviewClicks({ showAddDialog.value = true },{ defaultClickModel.navBack() },{
                 defaultClickModel.navTo("player/detail/${it.id}")
-            }) )
+                }),
+            )
         } else if( workingModel.value != null && workingModel.value.onFailure() ){
             defaultClickModel.navBack()
         } else if( workingModel.value == null || workingModel.value.onLoad() ){
