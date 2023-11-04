@@ -82,7 +82,7 @@ class PlayerOverviewComponents {
                     Column() {
                         ShortPlayerImage( modifier=modifier, p = p)
                     }
-                    Column(Modifier.padding(40.dp , 0.dp, 0.dp, 0.dp)) {
+                    Column(Modifier.padding(50.dp , 0.dp, 0.dp, 0.dp)) {
                         Text(  p.givenName.plus(" ").plus(p.familyName), fontWeight = FontWeight.Bold )
                     }
                 }
@@ -94,7 +94,7 @@ class PlayerOverviewComponents {
                             contentDescription = stringResource(id = R.string.in_progress)
                         )
                     }
-                    Column(Modifier.padding(38.dp , 0.dp, 0.dp, 0.dp)) {
+                    Column(Modifier.padding(30.dp , 0.dp, 0.dp, 0.dp)) {
                         Text(  p.givenName.plus(" ").plus(p.familyName), fontWeight = FontWeight.Bold )
                     }
                 }
@@ -114,5 +114,5 @@ class PlayerOverviewComponents {
 private fun PlayerOverviewComponentsPreview(){
     val player = Player("1234" , "Max" , "Mustermann" , LocalDate.of(2018,1,1) , "Bambini" , state = Player.MemberState(null,Player.MemberState.Active(true)) )
 
-    PlayerOverviewComponents.PlayerShortBox( player );
+    PlayerOverviewComponents.PlayerShortBox( player , true );
 }

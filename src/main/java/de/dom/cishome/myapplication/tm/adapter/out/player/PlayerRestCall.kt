@@ -149,9 +149,13 @@ class PlayerRestCall {
     fun playerNotes( playerId: String ): PlayerNoteResponse? {
         var url = "${root()}/players/${playerId}/note"
         val response = httpGet( url )
-        val json = response.body?.string() ?: "{}"
-        val fromJson = GsonUtils.mapper().fromJson(json, PlayerNoteResponse::class.java)
-        return fromJson
+        try{
+            val json = response.body?.string() ?: "{}"
+            val fromJson = GsonUtils.mapper().fromJson(json, PlayerNoteResponse::class.java)
+            return fromJson
+        }catch (e: Exception){
+            return null;
+        }
     }
 
     fun createPlayerNote( playerId: String , body: CreateNoteRequest ): Boolean {
@@ -163,6 +167,16 @@ class PlayerRestCall {
             .build()
         val response = client.newCall( request ).execute()
         return response.isSuccessful
+    }
+
+    fun deleteNotes(noteId: String, playerId: String): Boolean {
+        var url = "${root()}/players/${playerId}/note/$noteId"
+        val request = Request.Builder()
+            .url(url)
+            .delete( "".toRequestBody(null) )
+            .build()
+        val response = client.newCall( request ).execute();
+        return response.isSuccessful;
     }
 
 
@@ -214,6 +228,8 @@ class PlayerRestCall {
         ).execute()
         return observer.close(response)
     }
+
+
 
 
     private class ApiCallObserver( val url: String) {

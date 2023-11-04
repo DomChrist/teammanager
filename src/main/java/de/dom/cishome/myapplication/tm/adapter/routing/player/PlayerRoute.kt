@@ -14,6 +14,7 @@ import de.dom.cishome.myapplication.compose.player.pages.PlayerInfoPage
 import de.dom.cishome.myapplication.tm.adapter.compose.player.overview.PlayerOverviewPage
 import de.dom.cishome.myapplication.tm.adapter.compose.player.contact.PlayerContactDetailsPage
 import de.dom.cishome.myapplication.tm.adapter.compose.player.detail.PlayerDetailPage
+import de.dom.cishome.myapplication.tm.adapter.compose.player.notes.PlayerNotesPage
 import de.dom.cishome.myapplication.tm.adapter.compose.player.shared.PlayerListFilter
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.DefaultClickModel
 import de.dom.cishome.myapplication.ui.MainControl
@@ -54,6 +55,11 @@ fun NavGraphBuilder.playerGraph(navController: NavController, mainControl: MainC
         composable("player/detail/{id}/contacts" , arguments = listOf( navArgument("id"){type= NavType.StringType} )){
             var id = it.arguments?.getString("id") ?: "";
             PlayerContactDetailsPage( DefaultClickModel( { navController.navigateUp() } , {navController.navigate(it)} ) ).Screen( id )
+        }
+
+        composable("player/detail/{id}/notes" , arguments = listOf( navArgument("id"){type= NavType.StringType} )){
+            var id = it.arguments?.getString("id") ?: "";
+            PlayerNotesPage( id, DefaultClickModel( { navController.navigateUp() } , {navController.navigate(it)} ) ).Screen()
         }
 
         composable("player/trial/detail/{id}" ){

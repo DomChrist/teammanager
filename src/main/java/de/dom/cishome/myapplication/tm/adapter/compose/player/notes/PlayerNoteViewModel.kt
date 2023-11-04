@@ -14,5 +14,26 @@ class PlayerNoteViewModel( private val repo: PlayerNoteRepository = PlayerNoteRe
         repo.readNotes(playerId , AsyncResponse(onSuccess = { data.postValue(it) } , onError = {}))
     }
 
+    fun add(title: String, txt: String) {
+        val id = data.value?.playerId ?: return;
+        repo.createNote(
+            id,
+            title,
+            txt,
+            AsyncResponse<Boolean>(
+                { load(id) },
+                {}
+            )
+        )
+    }
+
+    fun delete( noteId: String ){
+        val id = data.value?.playerId ?: return;
+        val call = AsyncResponse<Boolean>({
+            load(id);
+        } , {})
+        repo.deleteNote( noteId , id , call )
+    }
+
 
 }

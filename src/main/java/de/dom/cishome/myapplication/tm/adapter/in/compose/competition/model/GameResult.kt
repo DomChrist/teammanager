@@ -5,7 +5,7 @@ import de.dom.cishome.myapplication.R
 class GameResult ( val goals: Int ){
 
     fun resources(): Array<Int> {
-        var r1 = R.drawable.digitalempty;
+        var r1 = R.drawable.digitalred0;
         var r2 = R.drawable.digitalred0;
 
         if( goals >= 99 ){
