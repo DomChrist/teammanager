@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import de.dom.cishome.myapplication.compose.player.pages.NewPlayerCommand
 import de.dom.cishome.myapplication.tm.adapter.compose.player.shared.PlayerListFilter
 import de.dom.cishome.myapplication.tm.adapter.out.PlayerPersistenceAdapter
+import de.dom.cishome.myapplication.tm.adapter.out.player.PlayerRestCall
 import de.dom.cishome.myapplication.tm.application.domain.player.model.Player
 import de.dom.cishome.myapplication.tm.application.domain.player.model.PlayersTeamModel
 import de.dom.cishome.myapplication.tm.application.domain.player.service.PlayerDomainService
