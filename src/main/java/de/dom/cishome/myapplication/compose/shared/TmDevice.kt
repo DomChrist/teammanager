@@ -3,6 +3,7 @@ package de.dom.cishome.myapplication.compose.shared
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.CombinedVibration
 import android.os.Environment
 import android.os.VibrationEffect
@@ -23,12 +24,17 @@ class TmDevice {
 
         fun Call( ctx: Context, text: String ){
             val sendIntent: Intent = Intent().apply {
-                action = Intent.ACTION_DIAL
-                putExtra(Intent.EXTRA_TEXT, text)
-                type = "text/plain"
+                action = Intent.ACTION_CALL
+                data = Uri.parse("tel:$text")
+                //putExtra(Intent.EXTRA_TEXT, text)
+                //type = "text/plain"
             }
-            val shareIntent = Intent.createChooser(sendIntent, null)
-            ctx.startActivity( shareIntent );
+            //val shareIntent = Intent.createChooser(sendIntent, null)
+            try{
+                ctx.startActivity( sendIntent );
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
         }
 
         fun vibrate( ctx: Context , millis: Long = 500 ){

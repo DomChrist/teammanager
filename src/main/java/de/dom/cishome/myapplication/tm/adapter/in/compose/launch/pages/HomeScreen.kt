@@ -43,6 +43,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import de.dom.cishome.myapplication.R
 import de.dom.cishome.myapplication.compose.shared.TmColors
+import de.dom.cishome.myapplication.tm.adapter.device.DevicePermission
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.CommonComponents
 import de.dom.cishome.myapplication.tm.adapter.`in`.compose.shared.Tm
 import de.dom.cishome.myapplication.ui.MainControl
@@ -60,7 +61,8 @@ class HomeScreen {
     @Composable
     fun Screen(mainClicks: MainControl = MainControl({},{},{}) ){
         content( clicks = mainClicks )
-        this.PermissionRequest();
+        //this.PermissionRequest();
+        DevicePermission.CheckPermission();
     }
 
     @Composable
@@ -178,6 +180,7 @@ class HomeScreen {
             //Manifest.permission.READ_EXTERNAL_STORAGE,
             //Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.VIBRATE,
+            Manifest.permission.INTERNET,
             Manifest.permission.CAMERA
         ))
         SideEffect {
